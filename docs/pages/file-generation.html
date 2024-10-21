@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generate Files</title>
+    <link rel="stylesheet" href="../assets/css/styles.css">
+</head>
+<body>
+    <h1>Helm Chart Generator</h1>
+    
+    <form id="inputForm">
+        <label for="serviceName">Service Name:</label>
+        <input type="text" id="serviceName" name="serviceName" required>
+        <button type="submit">Generate Files</button>
+    </form>
+
+    <h2>Generated Files:</h2>
+    <div id="output"></div>
+
+    <a href="../index.html">Back to Main</a>
+
+    <script src="../assets/js/generateFiles.js"></script>
+</body>
+</html>
