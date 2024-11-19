@@ -3,7 +3,7 @@ name: Update Docs on Tag Release
 on:
   push:
     tags:
-      - 'v'
+      - 'v*'
 
 jobs:
   update-docs:
