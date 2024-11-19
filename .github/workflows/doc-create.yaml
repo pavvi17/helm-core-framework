@@ -3,7 +3,7 @@ name: Update Docs on Tag Release
 on:
   push:
     tags:
-      - 'v*'
+      - 'v'
 
 jobs:
   update-docs:
@@ -20,6 +20,19 @@ jobs:
       - name: Extract Tag Version
         id: get_tag
         run: echo "TAG_NAME=${GITHUB_REF##*/}" >> $GITHUB_ENV
+
+      - name: Fetch All Branches
+        run: git fetch --all
+
+      - name: Checkout main branch
+        run: |
+          # Check if main branch exists, if not create it
+          if git show-ref --verify --quiet refs/heads/main; then
+            git checkout main
+          else
+            git checkout -b main
+            git branch --set-upstream-to=origin/main
+          fi
 
       - name: Create Version File
         run: |
