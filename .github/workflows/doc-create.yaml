@@ -43,4 +43,4 @@ jobs:
           git commit -m "Add version ${{ env.TAG_NAME }} to docs"
 
       - name: Push Changes
-        run: git push origin docs
+        run: git push origin main
