@@ -1,0 +1,46 @@
+name: Update Docs on Tag Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  update-docs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js 14.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: '14'
+
+      - name: Extract Tag Version
+        id: get_tag
+        run: echo "TAG_NAME=${GITHUB_REF##*/}" >> $GITHUB_ENV
+
+      - name: Create Version File
+        run: |
+          mkdir -p docs/pages/versions
+          echo "<h1>Version ${{ env.TAG_NAME }}</h1>" > docs/pages/versions/${{ env.TAG_NAME }}.html
+
+      - name: Update Index File
+        run: |
+          TAG_LINK="<li><a href=\"pages/versions/${{ env.TAG_NAME }}.html\">${{ env.TAG_NAME }}</a></li>"
+          # Insert the new tag link before the other versions in docs/index.html
+          sed -i "/<ul>/a $TAG_LINK" docs/index.html
+
+      - name: Configure Git User
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Commit Changes
+        run: |
+          git add docs/pages/versions/${{ env.TAG_NAME }}.html docs/index.html
+          git commit -m "Add version ${{ env.TAG_NAME }} to docs"
+
+      - name: Push Changes
+        run: git push origin docs
