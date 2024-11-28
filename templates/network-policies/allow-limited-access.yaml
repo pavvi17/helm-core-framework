@@ -1,0 +1,36 @@
+# The policy prevents deployments from other namespaces to access pods in the test namespace.
+# This might enable Loadbalancers to access the pods.
+{{- if .Values.mesh.enabled }}
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  namespace: {{ .Release.Namespace }}
+  name: allow-from-only-lb-and-gateway
+spec:
+  podSelector:
+    matchLabels:
+  ingress:
+    - from:
+        {{- if or (and .Values.httpRoute .Values.httpRoute.enabled) .Values.ingress.type }} # if route is enabled or ingress type exists
+        - podSelector: {}
+        # Allow from GCP Load Balancer (ie. Ingress)
+        - ipBlock:
+            cidr: 35.191.0.0/16
+        - ipBlock:
+            cidr: 130.211.0.0/22
+        # CIDR block of the Proxy only subnet
+        # you can view this on the networks-host-svs-dev project
+        - ipBlock:
+            cidr: {{ .Values.mesh.proxySubnet }}
+        {{- end }}
+        - namespaceSelector:
+            matchLabels:
+              {{ .Values.mesh.namespaceAccessLabel }}
+      ports:
+      - protocol: TCP
+        port: 443
+      - protocol: TCP
+        port: 80
+      - protocol: TCP
+        port: {{ .Values.deployment.containerPort }}
+{{- end }}

@@ -1,0 +1,113 @@
+{{ $secret:= .Values.environment.service_name | quote }}
+{{- if .Values.deployment.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "main-helm.chartName" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: {{ include "main-helm.chartName" . }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ include "main-helm.chartName" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "main-helm.chartName" . }}
+      annotations:
+        {{- if .Values.otel.enabled }}
+        sidecar.opentelemetry.io/inject: {{ include "otelCollectorName" . | quote }}
+        {{- end}}
+        {{- if .Values.cloudStorageMount.enabled }}
+        gke-gcsfuse/volumes: "true"
+        {{- end }}
+    spec:
+      # this is the service account that the pod will use to use Workload Identity Federation
+      serviceAccountName: {{ .Values.environment.service_name }}
+      volumes:
+      {{- if or (.Values.cloudSql.useCloudsqlProxy) }}
+        # Create volume to communicate with cloudsql proxy over socket
+        - name: cloudsql
+          emptyDir: {}
+      {{- end }}
+      {{- if .Values.cloudStorageMount.enabled }}
+        - name: gcs-fuse-csi-ephemeral
+          csi:
+            driver: gcsfuse.csi.storage.gke.io
+            readOnly: {{ .Values.cloudStorageMount.readOnly }} # change this to false if you want to write to bucket as well
+            volumeAttributes:
+              bucketName: "{{ .Values.cloudStorageMount.bucketName }}" # change this to bucket name you want to be mounted
+              mountOptions: "{{ join "," .Values.cloudStorageMount.mountOptions }}"
+              fileCacheCapacity: "{{ .Values.cloudStorageMount.fileCacheCapacity | default "10Gi" }}" # if set to 0 cache of files is disabled
+              metadataStatCacheCapacity: "0"
+              metadataTypeCacheCapacity: "0"
+              metadataCacheTTLSeconds: "0"
+      {{- end }}
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+      containers:
+        {{- if .Values.cloudSql.useCloudsqlProxy }}
+        ############################## Cloud sql proxy container ##############################
+        # Using cloudsql proxy to connect to DB
+        - name: cloudsql-proxy
+          # The default image uses "distroless" which is USEless when it comes to logging so use alpine instead
+          image: gcr.io/cloudsql-docker/gce-proxy:1.33.1-alpine
+          command:
+            - "/cloud_sql_proxy"
+            {{- if not .Values.cloudSql.useTcp }}
+            - "-dir=/var/run/cloudsql"
+            - "-instances={{- range .Values.cloudSql.instances }}{{(print .cloudSqlInstanceName ) }},{{- end }}"
+            {{- else }}
+            - "-instances={{- range .Values.cloudSql.instances }}{{(print .cloudSqlInstanceName "=tcp:" .port ) }},{{- end }}"
+            {{- end }}
+            - "-verbose={{ .Values.cloudSql.verboseLogging }}"
+            {{- if .Values.cloudSql.enableIamLogin }}
+            - "-enable_iam_login"
+            {{- end }}
+          volumeMounts:
+            - name: cloudsql
+              mountPath: /var/run/cloudsql
+          securityContext:
+            runAsNonRoot: true
+        {{- end }}
+
+        ############################## The Application container ##############################
+        - name: {{ include "main-helm.chartName" . }}
+          image: {{ .Values.image.repository }}{{ .Values.image.separator }}{{ .Values.image.tag }}
+
+          ports:
+            - containerPort: {{ .Values.deployment.containerPort }}
+          resources:
+            requests:
+              cpu: {{ .Values.deployment.resources.requests.cpu }}
+              ephemeral-storage: {{ .Values.deployment.resources.requests.ephemeralStorage }}
+              memory: {{ .Values.deployment.resources.requests.memory }}
+            limits:
+              cpu: {{ .Values.deployment.resources.limits.cpu }}
+              ephemeral-storage: {{ .Values.deployment.resources.requests.ephemeralStorage }}
+              memory: {{ .Values.deployment.resources.limits.memory }}
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1000
+          volumeMounts:
+          {{- if .Values.cloudSql.useCloudsqlProxy }}
+            - name: cloudsql
+              mountPath: /var/run/cloudsql
+          {{- end }}
+          {{- if .Values.cloudStorageMount.enabled }}
+            - name: gcs-fuse-csi-ephemeral
+              mountPath: {{ .Values.cloudStorageMount.mountPath }}
+          {{- end }}
+          {{- if .Values.env }}
+          env:
+            {{- toYaml .Values.env | nindent 12 }}
+          {{- end }}
+          {{- if .Values.secrets.enabled }}
+          envFrom:
+            - secretRef:
+                name: {{ include "main-helm.chartName" . }}
+          {{- end }}
+{{- end }}

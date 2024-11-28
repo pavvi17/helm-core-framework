@@ -1,0 +1,10 @@
+{{- if .Values.ingress.enabled }}
+apiVersion: networking.gke.io/v1
+kind: ManagedCertificate
+metadata:
+  name: {{ include "main-helm.chartName" . }}-managed-cert
+  namespace: {{ .Release.Namespace }}
+spec:
+  domains:
+    - {{.Values.environment.service_name }}.{{ .Values.environment.name }}.brevanhoward.digital
+{{ end }}

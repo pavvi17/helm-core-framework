@@ -1,0 +1,27 @@
+{{- if .Values.ingress.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "main-helm.chartName" . }}
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    networking.gke.io/v1beta1.FrontendConfig: {{ include "main-helm.chartName" . }}-ingress-frontend-config
+    networking.gke.io/managed-certificates: {{ include "main-helm.chartName" . }}-managed-cert
+    {{- if eq .Values.ingress.type "internal" }}
+    kubernetes.io/ingress.class: "gce-internal"
+    {{- else if eq .Values.ingress.type "external" }}
+    kubernetes.io/ingress.class: "gce"
+    {{ end }}
+spec:
+  rules:
+    - host: {{ .Values.environment.service_name }}.{{ .Values.environment.name }}.brevanhoward.digital
+      http:
+        paths:
+          - pathType: Prefix
+            path: "/"
+            backend:
+              service:
+                name: {{ include "main-helm.chartName" . }}
+                port:
+                  number: {{ .Values.service.port }}
+{{ end }}

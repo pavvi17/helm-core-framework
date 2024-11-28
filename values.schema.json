@@ -1,0 +1,374 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Helm Core Framework Values",
+  "type": "object",
+  "properties": {
+    "replicaCount": {
+      "type": "integer",
+      "default": 1,
+      "description": "Number of replicas to deploy."
+    },
+    "image": {
+      "type": "object",
+      "properties": {
+        "repository": {
+          "type": "string",
+          "default": "GLOBAL_BASE_IMAGE",
+          "description": "Default Docker image repository."
+        },
+        "tag": {
+          "type": "string",
+          "default": "latest"
+        },
+        "separator": {
+          "type": "string",
+          "default": "@"
+        },
+        "pullPolicy": {
+          "type": "string",
+          "default": "IfNotPresent",
+          "enum": ["Always", "IfNotPresent", "Never"]
+        }
+      },
+      "required": ["repository", "tag" ]
+    },
+    "deployment": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": true
+        },
+        "containerPort": {
+          "type": "integer",
+          "default": 8080
+        },
+        "resources": {
+          "type": "object",
+          "properties": {
+            "requests": {
+              "type": "object",
+              "properties": {
+                "memory": {
+                  "type": "string",
+                  "default": "512Mi"
+                },
+                "ephemeralStorage": {
+                  "type": "string",
+                  "default": "1Gi"
+                },
+                "cpu": {
+                  "type": "string",
+                  "default": "500m"
+                }
+              },
+              "required": ["memory", "ephemeralStorage", "cpu"]
+            },
+            "limits": {
+              "type": "object",
+              "properties": {
+                "memory": {
+                  "type": "string",
+                  "default": "512Mi"
+                },
+                "ephemeralStorage": {
+                  "type": "string",
+                  "default": "1Gi"
+                },
+                "cpu": {
+                  "type": "string",
+                  "default": "500m"
+                }
+              },
+              "required": ["memory", "ephemeralStorage", "cpu"]
+            }
+          },
+          "required": ["requests", "limits"]
+        }
+      },
+      "required": ["enabled", "containerPort", "resources"]
+    },
+    "serviceAccount": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": true
+        },
+        "automount": {
+          "type": "boolean",
+          "default": true
+        },
+        "annotations": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Annotations to add to the service account."
+        },
+        "name": {
+          "type": "string",
+          "default": "helm-core-framework",
+          "description": "The name of the service account to use."
+        }
+      },
+      "required": ["enabled", "automount", "annotations", "name"]
+    },
+    "createHooks": {
+      "type": "boolean",
+      "default": false
+    },
+    "service": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": true
+        },
+        "type": {
+          "type": "string",
+          "default": "NodePort",
+          "enum": ["ClusterIP", "NodePort", "LoadBalancer"]
+        },
+        "port": {
+          "type": "integer",
+          "default": 80
+        },
+        "name": {
+          "type": "string",
+          "default": "http"
+        }
+      },
+      "required": ["enabled", "type", "port", "name"]
+    },
+    "ingress": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": false
+        },
+        "type": {
+          "type": "string",
+          "default": "external",
+          "description": "Type of ingress (internal or external)."
+        },
+        "iap": {
+          "type": "boolean",
+          "default": false
+        },
+        "securityPolicy": {
+          "type": "string",
+          "default": "ip-allow-policy"
+        },
+        "className": {
+          "type": "string",
+          "default": ""
+        },
+        "annotations": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "tls": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "secretName": {
+                "type": "string"
+              },
+              "hosts": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": ["secretName", "hosts"]
+          }
+        }
+      },
+      "required": ["enabled", "type", "iap", "securityPolicy", "className", "annotations", "tls"]
+    },
+    "httpRoute": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": false
+        },
+        "type": {
+          "type": "string",
+          "default": "internal"
+        }
+      },
+      "required": ["enabled", "type"]
+    },
+    "mesh": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": false
+        },
+        "sqlHost": {
+          "type": "string",
+          "default": "helm-core-framework-db-instance-development"
+        },
+        "proxySubnet": {
+          "type": "string",
+          "default": "10.64.129.0/24"
+        },
+        "sqlAddress": {
+          "type": "string",
+          "default": "10.64.128.61/32"
+        },
+        "namespaceAccessLabel": {
+          "type": "string",
+          "default": "helm-core-framework.access: enabled"
+        }
+      },
+      "required": ["enabled", "sqlHost", "proxySubnet", "sqlAddress", "namespaceAccessLabel"]
+    },
+    "cloudSql": {
+      "type": "object",
+      "properties": {
+        "useCloudsqlProxy": {
+          "type": "boolean",
+          "default": false
+        },
+        "instances": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "cloudSqlInstanceName": {
+                "type": "string"
+              },
+              "port": {
+                "type": "integer"
+              }
+            },
+            "required": ["cloudSqlInstanceName", "port"]
+          }
+        },
+        "verboseLogging": {
+          "type": "boolean",
+          "default": false
+        },
+        "enableIamLogin": {
+          "type": "boolean",
+          "default": true
+        }
+      },
+      "required": ["useCloudsqlProxy", "instances", "verboseLogging", "enableIamLogin"]
+    },
+    "autoscaling": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": false
+        },
+        "minReplicas": {
+          "type": "integer",
+          "default": 1
+        },
+        "maxReplicas": {
+          "type": "integer",
+          "default": 100
+        },
+        "targetCPUUtilizationPercentage": {
+          "type": "integer",
+          "default": 80
+        }
+      },
+      "required": ["enabled", "minReplicas", "maxReplicas", "targetCPUUtilizationPercentage"]
+    },
+    "otel": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": false
+        }
+      },
+      "required": ["enabled"]
+    },
+    "secrets": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": false
+        },
+        "secrets_project": {
+          "type": "string",
+          "default": ""
+        },
+        "env": {
+                "type": "object"
+        }
+      },
+      "required": ["enabled"]
+    },
+    "cloudStorageMount": {
+      "mountPath": {
+          "type": "string",
+          "default": ""
+      },
+      "bucketName": {
+          "type": "string",
+          "default": ""
+      },
+      "fileCacheCapacity": {
+          "type": "string",
+          "default": ""
+      },
+      "mountOptions": {
+          "type": "array",
+          "items": {
+              "type": "string"
+          }
+      },
+      "readOnly": {
+          "type": "boolean",
+          "default": false
+      },
+      "required": ["enabled", "mountPath", "bucketName"]
+    },
+    "environment": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "default": "dev"
+        },
+        "type": {
+          "type": "string",
+          "default": "core"
+        },
+        "project_id": {
+          "type": "string",
+          "default": "bhd-helm-core-framework"
+        },
+        "cluster_name": {
+          "type": "string",
+          "default": "helm-core-framework"
+        },
+        "region": {
+          "type": "string",
+          "default": "europe-west2"
+        },
+        "service_name": {
+          "type": "string",
+          "default": "helm-core-framework"
+        }
+      },
+      "required": ["name", "service_name"]
+    }
+  },
+  "required": ["replicaCount", "image", "deployment", "serviceAccount", "createHooks", "service", "ingress", "httpRoute", "mesh", "cloudSql", "autoscaling", "environment", "otel", "cloudStorageMount", "secrets"]
+}

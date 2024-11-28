@@ -1,0 +1,18 @@
+{{- if .Values.mesh.enabled }}
+{{- if .Values.cloudSql.cloudSqlProxy }}
+apiVersion: networking.istio.io/v1alpha3
+kind: ServiceEntry
+metadata:
+  name: postgres-cloud-sql
+spec:
+  hosts:
+  - {{ .Values.mesh.sqlHost }}.domain 
+  addresses:
+  - {{ .Values.mesh.sqlAddress }}
+  ports:
+  - name: tcp
+    number: 3307
+    protocol: tcp
+  location: MESH_EXTERNAL
+{{- end }}  
+{{- end }}

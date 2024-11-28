@@ -1,0 +1,83 @@
+{{- if .Values.otel.enabled }}
+apiVersion: opentelemetry.io/v1beta1
+kind: OpenTelemetryCollector
+metadata:
+  name: {{ include "otelCollectorName" . }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  mode: sidecar
+  serviceAccount: {{ .Values.environment.service_name }}
+  config:
+    receivers:
+      otlp:
+        protocols:
+          grpc:
+              endpoint: 0.0.0.0:4317
+          http:
+              endpoint: 0.0.0.0:4318
+
+    exporters:
+      googlecloud:
+        project: {{ .Values.environment.project_id }}
+        log:
+          default_log_name: "otel-agent"
+        # to add a prefix need to be able to create a metric descriptor (i.e role/monitoring.editor)
+        metric:
+          # prefix: {{ .Chart.Name }}
+          instrumentation_library_labels: true
+          service_resource_labels: true
+
+    processors:
+      memory_limiter:
+        check_interval: 1s
+        limit_percentage: 80
+        spike_limit_percentage: 30
+      batch:
+        timeout: 1s
+        send_batch_size: 8192
+      resourcedetection:
+        detectors: [env, gcp]
+        timeout: 2s
+        override: false
+      resource:
+        attributes:
+          - action: upsert
+            key: env
+            value: {{ .Values.environment.name }}
+          - action: upsert
+            key: application
+            value: {{ .Values.environment.service_name }}
+      attributes:
+        actions:
+          - action: insert
+            key: env
+            value: {{ .Values.environment.name }}
+          - action: insert
+            key: application
+            value: {{ .Values.environment.service_name }}
+
+    extensions:
+      health_check:
+        endpoint: 0.0.0.0:13133
+      memory_ballast:
+        size_mib: 256
+
+    service:
+      extensions: [health_check, memory_ballast]
+      telemetry:
+        logs:
+          level: info
+      pipelines:
+        traces:
+          receivers: [otlp]
+          exporters: [googlecloud]
+          processors: [resourcedetection, memory_limiter, resource, batch]
+        metrics:
+          receivers: [otlp]
+          exporters: [googlecloud]
+          processors: [resourcedetection, memory_limiter, attributes, batch]
+        logs:
+          receivers: [otlp]
+          exporters: [googlecloud]
+          processors: [resourcedetection, memory_limiter, batch]
+{{- end }}

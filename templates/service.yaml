@@ -1,0 +1,25 @@
+{{- if .Values.service.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "main-helm.chartName" . }} 
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: {{ include "main-helm.chartName" . }}
+  {{- if .Values.ingress.enabled }}
+  annotations:
+    cloud.google.com/neg: '{"ingress": true}'
+    {{- if eq .Values.ingress.type "external" }}
+    cloud.google.com/backend-config: '{"default": "{{ include "main-helm.chartName" . }}-ingress-backend-config"}'
+    {{- end }}
+  {{ end }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: {{ .Values.deployment.containerPort }}
+      protocol: TCP
+      name: {{ .Values.service.name }}
+  selector:
+    app: {{ include "main-helm.chartName" . }}
+{{ end }}
