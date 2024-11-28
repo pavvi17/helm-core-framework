@@ -31,7 +31,7 @@ jobs:
       - name: Fetch the latest tag
         run: |
           git fetch --tags
-          latest_tag=$(git describe --tags --abbrev=0)
+          latest_tag=$(git tag --sort=-v:refname | head -n 1)
           echo "Latest tag is: $latest_tag"
           
           # Set the tag as an output to pass to later steps
