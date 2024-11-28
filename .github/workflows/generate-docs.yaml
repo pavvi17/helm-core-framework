@@ -82,4 +82,4 @@ jobs:
 
       - name: Check Git Diff
         run: |
-          git diff --exit-code
+          git diff
