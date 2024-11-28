@@ -56,7 +56,7 @@ jobs:
       - name: Generate version page
         run: |
           echo "The previous version is ${{ env.prev_version }}"
-          python chart-generate.py ${{ github.event.inputs.version }} ${{ env.prev_version }}
+          python scripts/chart-generate.py ${{ github.event.inputs.version }} ${{ env.prev_version }}
 
       - name: Update index.html with new version
         run: |
