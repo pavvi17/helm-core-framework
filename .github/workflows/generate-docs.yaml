@@ -1,0 +1,68 @@
+name: Generate versioned HTML on tag release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version number (e.g., v1.1.0)'  # Description for the input
+        required: true  # Make this input mandatory
+        default: 'v1.1.0'  # Default version for testing
+#   push:
+#     tags:
+#       - 'v*.*.*'  # Triggers on tags like v1.0.0, v2.1.5, etc.
+
+jobs:
+  generate_version_file:
+    runs-on: ubuntu-latest
+
+    steps:
+
+    # - name: Checkout repository
+    #   uses: actions/checkout@v3
+    #   with:
+    #     ref: docs  # Checkout the 'docs' branch
+      # Step 1: Checkout docs branch (since the script and output are in this branch)
+      - name: Checkout docs branch
+        uses: actions/checkout@v3
+        with:
+          ref: docs
+
+      # Step 2: Fetch only the two necessary files from the main branch
+      - name: Fetch values.yaml and values.schema.json from main
+        run: |
+          git fetch origin main
+          git checkout origin/main -- values.yaml values.schema.json
+
+      # Step 3: Set up Python 3
+      - name: Set up Python 3
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      # Step 4: Install dependencies
+      - name: Install dependencies
+        run: |
+          python -m venv venv
+          source venv/bin/activate
+          ls -la ; pwd ;
+          pip install -r scripts/requirements.txt
+
+      # Step 5: Get the latest tag from the repository
+      - name: Get latest tag
+        id: prev_version
+        run: echo "prev_version=$(git describe --tags --abbrev=0)" >> $GITHUB_ENV
+
+      # Step 6: Run the Python script to generate the version page
+      - name: Generate version page
+        run: |
+          echo "The previous version is ${{ env.prev_version }}"
+          python chart-generate.py ${{ github.event.inputs.version }} ${{ env.prev_version }}
+
+      - name: Update index.html with new version
+        run: |
+          NEW_VERSION=${{ github.event.inputs.version }}
+          sed -i "/<\/ul>/i <li><a href=\"./pages/versions/$NEW_VERSION.html\">Version $NEW_VERSION</a></li>" docs/index.html
+
+      - name: Check Git Diff
+        run: |
+          git diff --exit-code
