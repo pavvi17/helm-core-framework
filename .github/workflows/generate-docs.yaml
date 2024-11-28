@@ -72,6 +72,7 @@ jobs:
       - name: Generate version page
         run: |
           echo "Using latest tag: $LATEST_TAG"
+          source venv/bin/activate
           python scripts/chart-generate.py ${{ github.event.inputs.version }} ${{ github.event.inputs.prev_version }}
 
       - name: Update index.html with new version
