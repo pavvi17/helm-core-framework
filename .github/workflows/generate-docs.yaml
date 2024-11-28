@@ -7,6 +7,10 @@ on:
         description: 'Version number (e.g., v1.1.0)'  # Description for the input
         required: true  # Make this input mandatory
         default: 'v1.1.0'  # Default version for testing
+      prev_version:
+        description: 'Version number (e.g., v1.1.0)'  # Description for the input
+        required: false  # Make this input mandatory
+        default: 'v0.0.7'  # Default version for testing
 #   push:
 #     tags:
 #       - 'v*.*.*'  # Triggers on tags like v1.0.0, v2.1.5, etc.
@@ -21,6 +25,17 @@ jobs:
     #   uses: actions/checkout@v3
     #   with:
     #     ref: docs  # Checkout the 'docs' branch
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        
+      - name: Fetch the latest tag
+        run: |
+          git fetch --tags
+          latest_tag=$(git describe --tags --abbrev=0)
+          echo "Latest tag is: $latest_tag"
+          
+          # Set the tag as an output to pass to later steps
+          echo "LATEST_TAG=$latest_tag" >> $GITHUB_ENV
       # Step 1: Checkout docs branch (since the script and output are in this branch)
       - name: Checkout docs branch
         uses: actions/checkout@v3
@@ -46,17 +61,18 @@ jobs:
           source venv/bin/activate
           ls -la ; pwd ;
           pip install -r scripts/requirements.txt
+          pip freeze
 
       # Step 5: Get the latest tag from the repository
-      - name: Get latest tag
-        id: prev_version
-        run: echo "prev_version=$(git describe --tags --abbrev=0)" >> $GITHUB_ENV
+      # - name: Get latest tag
+      #   id: prev_version
+      #   run: echo "prev_version=$(git describe --tags --abbrev=0)" >> $GITHUB_ENV
 
       # Step 6: Run the Python script to generate the version page
       - name: Generate version page
         run: |
-          echo "The previous version is ${{ env.prev_version }}"
-          python scripts/chart-generate.py ${{ github.event.inputs.version }} ${{ env.prev_version }}
+          echo "Using latest tag: $LATEST_TAG"
+          python scripts/chart-generate.py ${{ github.event.inputs.version }} ${{ github.event.inputs.prev_version }}
 
       - name: Update index.html with new version
         run: |
