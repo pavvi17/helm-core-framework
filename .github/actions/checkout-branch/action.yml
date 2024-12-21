@@ -17,11 +17,11 @@ runs:
     # - name: Checkout the branch
     #   uses: actions/checkout@v3
     # Manually check out the branch using git
-    - name: Checkout the branch
-      run: |
-        git branch
-        echo "Checked out branch: ${{ inputs.branch }}"
-      shell: bash
+    # - name: Checkout the branch
+    #   run: |
+    #     git branch
+    #     echo "Checked out branch: ${{ inputs.branch }}"
+    #   shell: bash
     - name: Get current branch name
       id: get-branch
       run: |
