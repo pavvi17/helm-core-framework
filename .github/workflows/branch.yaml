@@ -12,7 +12,7 @@ jobs:
   set-matrix:
     runs-on: ubuntu-latest
     outputs:
-      branches: ${{ steps.set-branches.outputs.branch-matrix }}
+      branches: ${{ steps.set-branches.outputs.branch_matrix }}
     steps:
       - name: Prepare branch list
         id: set-branches
@@ -20,7 +20,7 @@ jobs:
           echo "Creating matrix from input branches"
           branches="${{ github.event.inputs.branches }}"
           branch_array=$(echo "[\"$(echo "$branches" | sed 's/,/\",\"/g')\"]")
-          echo "::set-output name=branch-matrix::$branch_array"
+          echo "branch_matrix=$branch_array" >> $GITHUB_OUTPUT
   
   print-branches:
     needs: set-matrix
