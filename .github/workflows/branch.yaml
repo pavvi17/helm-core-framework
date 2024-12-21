@@ -19,15 +19,17 @@ jobs:
         run: |
           echo "Creating matrix from input branches"
           branches="${{ github.event.inputs.branches }}"
+          # Create a JSON array from the comma-separated branches
           branch_array=$(echo "[\"$(echo "$branches" | sed 's/,/\",\"/g')\"]")
-          echo "branch_matrix=$branch_array" >> $GITHUB_OUTPUT
-  
-  print-branches:
-    needs: set-matrix
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        branch: ${{ fromJson(needs.set-matrix.outputs.branches) }}
-    steps:
-      - name: Print branch name
-        run: echo "Branch: ${{ matrix.branch }}"
+          echo "branch_matrix=${branch_array}" >> $GITHUB_OUTPUT
+          echo "Branch array: ${branch_array}"  # Debugging line to check the output
+
+  # print-branches:
+  #   needs: set-matrix
+  #   runs-on: ubuntu-latest
+  #   strategy:
+  #     matrix:
+  #       branch: ${{ fromJson(needs.set-matrix.outputs.branches) }}
+    # steps:
+    #   - name: Print branch name
+    #     run: echo "Branch: ${{ matrix.branch }}"
