@@ -1,0 +1,25 @@
+name: 'Checkout Branch'
+description: 'Checks out the branch and prints its name'
+inputs:
+  branch:
+    description: 'Branch to checkout'
+    required: true
+outputs:
+  current-branch:
+    description: 'The name of the checked out branch'
+runs:
+  using: 'composite'
+  steps:
+    - name: Checkout the branch
+      uses: actions/checkout@v3
+      with:
+        ref: ${{ inputs.branch }}
+
+    - name: Get current branch name
+      id: get-branch
+      run: |
+        echo "branch=$(git rev-parse --abbrev-ref HEAD)" >> $GITHUB_ENV
+        echo "Checked out branch: ${{ inputs.branch }}"
+      
+    - name: Set output
+      run: echo "current-branch=${{ env.branch }}" >> $GITHUB_OUTPUT
