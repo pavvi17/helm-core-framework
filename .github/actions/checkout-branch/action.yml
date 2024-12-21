@@ -7,6 +7,8 @@ inputs:
 outputs:
   current-branch:
     description: 'The name of the checked out branch'
+    value: ${{ steps.get-branch.outputs.branch }}  # Set the output value correctly
+
 runs:
   using: 'composite'
   steps:
@@ -14,13 +16,11 @@ runs:
       uses: actions/checkout@v3
       with:
         ref: ${{ inputs.branch }}
+
     - name: Get current branch name
       id: get-branch
       run: |
         echo "branch=$(git rev-parse --abbrev-ref HEAD)" >> $GITHUB_ENV
+        echo "branch=${{ env.branch }}" >> $GITHUB_OUTPUT  # Set the output correctly
         echo "Checked out branch: ${{ inputs.branch }}"
-      shell: bash  # Ensure this line is present
-
-    - name: Set output
-      run: echo "current-branch=${{ env.branch }}" >> $GITHUB_OUTPUT
       shell: bash  # Ensure this line is present
