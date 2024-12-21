@@ -9,29 +9,38 @@ on:
         default: "main,dev"
 
 jobs:
-  checkout:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        branch: [main, test, develop] # Define the branches in the matrix
 
+  simple-run:
+    runs-on: ubuntu-latest
     steps:
-      - name: Checking the path and files
-        run: ls -la ; pwd ; cd .. ; ls -la
       - name: Checkout code
-        uses: actions/checkout@v3
-      - name: Checking the path and files
-        run: ls -la ; pwd ; ls -lart .github
-      - name: Checkout branch
         uses: ./.github/actions/checkout-branch
         with:
-          branch: ${{ matrix.branch }} # Use the current branch from the matrix
+          branch: main
+  
+  # checkout:
+  #   runs-on: ubuntu-latest
+  #   strategy:
+  #     matrix:
+  #       branch: [main, test, develop] # Define the branches in the matrix
 
-      # Add more steps here as needed
-      - name: Run tests
-        run: |
-          echo "Running tests on branch ${{ matrix.branch }}"
-        shell: bash
+  #   steps:
+  #     - name: Checking the path and files
+  #       run: ls -la ; pwd ; cd .. ; ls -la
+  #     - name: Checkout code
+  #       uses: actions/checkout@v3
+  #     - name: Checking the path and files
+  #       run: ls -la ; pwd ; ls -lart .github
+  #     - name: Checkout branch
+  #       uses: ./.github/actions/checkout-branch
+  #       with:
+  #         branch: ${{ matrix.branch }} # Use the current branch from the matrix
+
+  #     # Add more steps here as needed
+  #     - name: Run tests
+  #       run: |
+  #         echo "Running tests on branch ${{ matrix.branch }}"
+  #       shell: bash
     # steps:
     #   - name: Checkout code
     #     uses: actions/checkout@v3
