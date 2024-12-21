@@ -16,8 +16,8 @@ jobs:
         branch: ${{ fromJson('["main","develop","feature"]') }}
       # Split the input string into an array
       # If the workflow_dispatch input is used instead of default matrix branches
-      include:
-        - branch_list: ${{ github.event.inputs.branches }}
+      # include:
+      #   - branch_list: ${{ github.event.inputs.branches }}
       
     steps:
       - name: Print branch names
