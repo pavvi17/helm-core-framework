@@ -1,4 +1,4 @@
-name: Print Branches from Matrix
+name: Dynamic Branch Matrix
 
 on:
   workflow_dispatch:
@@ -9,24 +9,25 @@ on:
         default: 'main,develop,feature'
 
 jobs:
+  set-matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      branches: ${{ steps.set-branches.outputs.branch-matrix }}
+    steps:
+      - name: Prepare branch list
+        id: set-branches
+        run: |
+          echo "Creating matrix from input branches"
+          branches="${{ github.event.inputs.branches }}"
+          branch_array=$(echo "[\"$(echo "$branches" | sed 's/,/\",\"/g')\"]")
+          echo "::set-output name=branch-matrix::$branch_array"
+  
   print-branches:
+    needs: set-matrix
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        branch: ${{ fromJson('["main","develop","feature"]') }}
-      # Split the input string into an array
-      # If the workflow_dispatch input is used instead of default matrix branches
-      # include:
-      #   - branch_list: ${{ github.event.inputs.branches }}
-      
+        branch: ${{ fromJson(needs.set-matrix.outputs.branches) }}
     steps:
-      - name: Print branch names
-        run: |
-          echo "Branch from matrix: ${{ matrix.branch }}"
-
-      - name: Split input branches
-        run: |
-          IFS=',' read -ra branches <<< "${{ matrix.branch_list }}"
-          for branch in "${branches[@]}"; do
-            echo "Branch: $branch"
-          done
+      - name: Print branch name
+        run: echo "Branch: ${{ matrix.branch }}"
