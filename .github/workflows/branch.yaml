@@ -1,0 +1,32 @@
+name: Print Branches from Matrix
+
+on:
+  workflow_dispatch:
+    inputs:
+      branches:
+        description: 'Comma-separated list of branches'
+        required: true
+        default: 'main,develop,feature'
+
+jobs:
+  print-branches:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        branch: ${{ fromJson('["main","develop","feature"]') }}
+      # Split the input string into an array
+      # If the workflow_dispatch input is used instead of default matrix branches
+      include:
+        - branch_list: ${{ github.event.inputs.branches }}
+      
+    steps:
+      - name: Print branch names
+        run: |
+          echo "Branch from matrix: ${{ matrix.branch }}"
+
+      - name: Split input branches
+        run: |
+          IFS=',' read -ra branches <<< "${{ matrix.branch_list }}"
+          for branch in "${branches[@]}"; do
+            echo "Branch: $branch"
+          done
