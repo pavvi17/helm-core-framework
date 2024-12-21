@@ -23,7 +23,7 @@ jobs:
       - name: Checking the path and files
         run: ls -la ; pwd ; ls -lart .github
       - name: Checkout branch
-        uses: .github/actions/checkout-branch/action.yml@main
+        uses: ./.github/actions/checkout-branch
         with:
           branch: ${{ matrix.branch }} # Use the current branch from the matrix
 
