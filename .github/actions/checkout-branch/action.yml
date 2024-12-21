@@ -19,7 +19,7 @@ runs:
     Manually check out the branch using git
     - name: Checkout the branch
       run: |
-        git fetch origin ${{ inputs.branch }}
+        git branch
         git checkout ${{ inputs.branch }}
         echo "Checked out branch: ${{ inputs.branch }}"
       shell: bash
