@@ -16,6 +16,8 @@ jobs:
         branch: [main, test, develop] # Define the branches in the matrix
 
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v3  
       - name: Checkout branch
         uses: ./.github/actions/checkout-branch
         with:
