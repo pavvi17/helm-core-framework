@@ -20,7 +20,6 @@ runs:
     - name: Checkout the branch
       run: |
         git branch
-        git checkout ${{ inputs.branch }}
         echo "Checked out branch: ${{ inputs.branch }}"
       shell: bash
     - name: Get current branch name
