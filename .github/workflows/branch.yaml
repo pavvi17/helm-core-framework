@@ -18,7 +18,7 @@ jobs:
       - name: Checkout code
         uses: ./.github/actions/checkout-branch
         with:
-          branch: main
+          branch: test
   
   # checkout:
   #   runs-on: ubuntu-latest
