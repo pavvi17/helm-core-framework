@@ -14,7 +14,7 @@ runs:
       uses: actions/checkout@v3
       with:
         ref: ${{ inputs.branch }}
-
+      shell: bash
     - name: Get current branch name
       id: get-branch
       run: |
