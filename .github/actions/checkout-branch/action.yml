@@ -14,15 +14,15 @@ runs:
   steps:
     - name: The current branch running job is ${{ inputs.branch }}"
       run: echo " The current branch running job is: 
-    # - name: Checkout the branch
-    #   uses: actions/checkout@v3
-    # Manually check out the branch using git
     - name: Checkout the branch
-      run: |
-        git fetch origin ${{ inputs.branch }}
-        git checkout ${{ inputs.branch }}
-        echo "Checked out branch: ${{ inputs.branch }}"
-      shell: bash
+      uses: actions/checkout@v3
+    # Manually check out the branch using git
+    # - name: Checkout the branch
+    #   run: |
+    #     git fetch origin ${{ inputs.branch }}
+    #     git checkout ${{ inputs.branch }}
+    #     echo "Checked out branch: ${{ inputs.branch }}"
+    #   shell: bash
     - name: Get current branch name
       id: get-branch
       run: |
