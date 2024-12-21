@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        branch-name: ${{ fromJson(inputs.branches) }}
+        branch-name: ${{ inputs.branches.split(',') }}  # Split the input into an array
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
