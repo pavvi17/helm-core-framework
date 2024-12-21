@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        branch: [main, test, develop, docs] # Define the branches in the matrix
+        branch: [main, test, develop] # Define the branches in the matrix
 
     steps:
       - name: Checkout branch
