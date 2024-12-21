@@ -22,16 +22,16 @@ jobs:
         uses: actions/checkout@v3
       - name: Checking the path and files
         run: ls ; pwd ; cd .. ; ls
-      # - name: Checkout branch
-      #   uses: ./.github/actions/checkout-branch
-      #   with:
-      #     branch: ${{ matrix.branch }} # Use the current branch from the matrix
+      - name: Checkout branch
+        uses: .github/actions/checkout-branch/action.yml@v0.0.5
+        with:
+          branch: ${{ matrix.branch }} # Use the current branch from the matrix
 
-      # # Add more steps here as needed
-      # - name: Run tests
-      #   run: |
-      #     echo "Running tests on branch ${{ matrix.branch }}"
-      #   shell: bash
+      # Add more steps here as needed
+      - name: Run tests
+        run: |
+          echo "Running tests on branch ${{ matrix.branch }}"
+        shell: bash
     # steps:
     #   - name: Checkout code
     #     uses: actions/checkout@v3
