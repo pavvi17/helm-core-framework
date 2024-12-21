@@ -1,35 +1,30 @@
-name: Dynamic Branch Matrix
+name: Run Jobs for Specific Branch
 
 on:
   workflow_dispatch:
     inputs:
       branches:
-        description: 'Comma-separated list of branches'
+        description: "Comma-separated list of branch names"
         required: true
-        default: 'main,develop,feature'
+        default: "main,dev"
 
 jobs:
-  set-matrix:
+  run-matrix:
     runs-on: ubuntu-latest
-    outputs:
-      branches: ${{ steps.set-branches.outputs.branch_matrix }}
+    strategy:
+      matrix:
+        branch-name: ${{ fromJson(inputs.branches) }}
     steps:
-      - name: Prepare branch list
-        id: set-branches
-        run: |
-          echo "Creating matrix from input branches"
-          branches="${{ github.event.inputs.branches }}"
-          # Create a JSON array from the comma-separated branches
-          branch_array=$(echo "[\"$(echo "$branches" | sed 's/,/\",\"/g')\"]")
-          echo "branch_matrix=${branch_array}" >> $GITHUB_OUTPUT
-          echo "Branch array: ${branch_array}"  # Debugging line to check the output
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ matrix.branch-name }}
 
-  # print-branches:
-  #   needs: set-matrix
-  #   runs-on: ubuntu-latest
-  #   strategy:
-  #     matrix:
-  #       branch: ${{ fromJson(needs.set-matrix.outputs.branches) }}
-    # steps:
-    #   - name: Print branch name
-    #     run: echo "Branch: ${{ matrix.branch }}"
+      - name: Display branch name
+        run: echo "Running on branch ${{ matrix.branch-name }}"
+
+      # Add the steps you want to run for each branch here
+      - name: Run script or command
+        run: |
+          echo "Running your script for branch ${{ matrix.branch-name }}"
+          # Replace with your commands
