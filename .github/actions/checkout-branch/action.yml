@@ -16,7 +16,7 @@ runs:
       run: echo " The current branch running job is: 
     # - name: Checkout the branch
     #   uses: actions/checkout@v3
-    Manually check out the branch using git
+    # Manually check out the branch using git
     - name: Checkout the branch
       run: |
         git branch
