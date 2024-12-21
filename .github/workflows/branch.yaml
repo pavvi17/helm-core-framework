@@ -9,22 +9,33 @@ on:
         default: "main,dev"
 
 jobs:
-  run-matrix:
+  checkout:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        branch-name: ${{ inputs.branches.split(',') }}  # Split the input into an array
+        branch: [main, test, develop, docs] # Define the branches in the matrix
+
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - name: Checkout branch
+        uses: ./.github/actions/checkout-branch
         with:
-          ref: ${{ matrix.branch-name }}
+          branch: ${{ matrix.branch }} # Use the current branch from the matrix
 
-      - name: Display branch name
-        run: echo "Running on branch ${{ matrix.branch-name }}"
-
-      # Add the steps you want to run for each branch here
-      - name: Run script or command
+      # Add more steps here as needed
+      - name: Run tests
         run: |
-          echo "Running your script for branch ${{ matrix.branch-name }}"
-          # Replace with your commands
+          echo "Running tests on branch ${{ matrix.branch }}"
+    # steps:
+    #   - name: Checkout code
+    #     uses: actions/checkout@v3
+    #     with:
+    #       ref: ${{ matrix.branch-name }}
+
+    #   - name: Display branch name
+    #     run: echo "Running on branch ${{ matrix.branch-name }}"
+
+    #   # Add the steps you want to run for each branch here
+    #   - name: Run script or command
+    #     run: |
+    #       echo "Running your script for branch ${{ matrix.branch-name }}"
+    #       # Replace with your commands
