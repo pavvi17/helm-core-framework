@@ -27,6 +27,7 @@ jobs:
       - name: Run tests
         run: |
           echo "Running tests on branch ${{ matrix.branch }}"
+        shell: bash
     # steps:
     #   - name: Checkout code
     #     uses: actions/checkout@v3
