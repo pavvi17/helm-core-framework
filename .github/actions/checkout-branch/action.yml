@@ -20,6 +20,8 @@ runs:
       run: |
         echo "branch=$(git rev-parse --abbrev-ref HEAD)" >> $GITHUB_ENV
         echo "Checked out branch: ${{ inputs.branch }}"
+      shell: bash
       
     - name: Set output
       run: echo "current-branch=${{ env.branch }}" >> $GITHUB_OUTPUT
+      shell: bash
