@@ -12,9 +12,9 @@ jobs:
 
       - name: Download logs of another workflow
         env:
-          GITHUB_TOKEN: ${{ secrets.MY_SECRET_TOKEN }} # Use the default token or your personal access token
-          WORKFLOW_RUN_ID: 35058798307 # Replace with the actual workflow run ID
-          REPO: pavvi17/helm-core-framework # Replace with your repository owner and name
+          GITHUB_TOKEN: ${{ secrets.MY_SECRET_TOKEN }}
+          WORKFLOW_RUN_ID: 35058798307
+          REPO: pavvi17/helm-core-framework
         run: |
           # Fetch the logs
           echo "Downloading logs for workflow run ID: $WORKFLOW_RUN_ID"
@@ -23,9 +23,15 @@ jobs:
                "https://api.github.com/repos/$REPO/actions/runs/$WORKFLOW_RUN_ID/logs" \
                -o logs.zip
 
-          # Check if the download was successful
-          if [ $? -ne 0 ]; then
-            echo "Failed to download logs."
+          # Validate the response
+          if [ ! -s logs.zip ]; then
+            echo "Error: Logs file is empty. Check the workflow run ID and permissions."
+            exit 1
+          fi
+
+          # Check if the downloaded file is a valid ZIP archive
+          if ! unzip -tq logs.zip; then
+            echo "Error: Downloaded file is not a valid ZIP archive."
             exit 1
           fi
 
@@ -36,3 +42,8 @@ jobs:
           # List the contents of the logs directory
           echo "Logs downloaded and unzipped:"
           ls logs
+
+      - name: Debug logs download
+        run: |
+          echo "Downloaded file contents:"
+          cat logs.zip
