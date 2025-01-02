@@ -45,6 +45,12 @@ jobs:
           mkdir -p logs/runner_${RUNNER_ID}
           unzip runner_${RUNNER_ID}_logs.zip -d logs/runner_${RUNNER_ID}
 
+      - name: Upload Logs for Runner 1
+        uses: actions/upload-artifact@v3
+        with:
+          name: runner-${{ inputs.runner_id_1 }}-logs
+          path: logs/runner_${{ inputs.runner_id_1 }}
+
       - name: Download logs for the second runner
         env:
           GITHUB_TOKEN: ${{ secrets.MY_SECRET_TOKEN }}
@@ -73,8 +79,8 @@ jobs:
           mkdir -p logs/runner_${RUNNER_ID}
           unzip runner_${RUNNER_ID}_logs.zip -d logs/runner_${RUNNER_ID}
 
-      - name: Upload Logs as Artifact
+      - name: Upload Logs for Runner 2
         uses: actions/upload-artifact@v3
         with:
-          name: workflow-logs
-          path: logs/
+          name: runner-${{ inputs.runner_id_2 }}-logs
+          path: logs/runner_${{ inputs.runner_id_2 }}
