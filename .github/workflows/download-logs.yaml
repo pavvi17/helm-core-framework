@@ -46,7 +46,6 @@ jobs:
       - name: Debug logs download
         run: |
           echo "Downloaded file contents:"
-          cat logs.zip
 
       - name: Upload Logs as Artifact
         uses: actions/upload-artifact@v3
