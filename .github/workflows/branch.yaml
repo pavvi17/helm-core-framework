@@ -6,54 +6,17 @@ on:
       branches:
         description: "Comma-separated list of branch names"
         required: true
-        default: "main,dev"
+        default: "main"
 
 jobs:
-
   simple-run:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-      - name: Checkout code
-        uses: ./.github/actions/checkout-branch
-        with:
-          branch: test
-  
-  # checkout:
-  #   runs-on: ubuntu-latest
-  #   strategy:
-  #     matrix:
-  #       branch: [main, test, develop] # Define the branches in the matrix
 
-  #   steps:
-  #     - name: Checking the path and files
-  #       run: ls -la ; pwd ; cd .. ; ls -la
-  #     - name: Checkout code
-  #       uses: actions/checkout@v3
-  #     - name: Checking the path and files
-  #       run: ls -la ; pwd ; ls -lart .github
-  #     - name: Checkout branch
-  #       uses: ./.github/actions/checkout-branch
-  #       with:
-  #         branch: ${{ matrix.branch }} # Use the current branch from the matrix
-
-  #     # Add more steps here as needed
-  #     - name: Run tests
-  #       run: |
-  #         echo "Running tests on branch ${{ matrix.branch }}"
-  #       shell: bash
-    # steps:
-    #   - name: Checkout code
-    #     uses: actions/checkout@v3
-    #     with:
-    #       ref: ${{ matrix.branch-name }}
-
-    #   - name: Display branch name
-    #     run: echo "Running on branch ${{ matrix.branch-name }}"
-
-    #   # Add the steps you want to run for each branch here
-    #   - name: Run script or command
-    #     run: |
-    #       echo "Running your script for branch ${{ matrix.branch-name }}"
-    #       # Replace with your commands
+      - name: Check out specific branch
+        run: |
+          echo "Checking out branch: ${{ github.event.inputs.branches }}"
+          git fetch --all
+          git checkout ${{ github.event.inputs.branches }}
