@@ -13,7 +13,7 @@ jobs:
       - name: Download logs of another workflow
         env:
           GITHUB_TOKEN: ${{ secrets.MY_SECRET_TOKEN }}
-          WORKFLOW_RUN_ID: 35058798307
+          WORKFLOW_RUN_ID: 12581139515
           REPO: pavvi17/helm-core-framework
         run: |
           # Fetch the logs
