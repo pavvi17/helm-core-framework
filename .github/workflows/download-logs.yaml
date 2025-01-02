@@ -4,14 +4,14 @@ on:
   workflow_dispatch:
     inputs:
       workflow_id:
-        description: "branch.yaml"
+        description: "Workflow filename or ID (e.g., branch.yaml)"
         required: true
         default: "branch.yaml"
       run_id:
-        description: " "
+        description: "Run ID of the workflow. Leave blank to use the latest run."
         required: false
       token:
-        description: "TOKEN"
+        description: "GitHub Token"
         required: true
 
 jobs:
@@ -20,8 +20,7 @@ jobs:
     steps:
       - name: Set up environment
         id: setup
-        run: |
-          mkdir -p logs
+        run: mkdir -p logs
 
       - name: Fetch Workflow Run Logs
         id: fetch-logs
@@ -34,13 +33,20 @@ jobs:
 
           # If RUN_ID is empty, fetch the latest run
           if [ -z "$RUN_ID" ]; then
+            echo "Fetching the latest completed workflow run ID..."
             RUN_ID=$(curl -s \
               -H "Authorization: token $TOKEN" \
               -H "Accept: application/vnd.github.v3+json" \
               "https://api.github.com/repos/${{ github.repository }}/actions/workflows/$WORKFLOW_ID/runs?status=completed&per_page=1" \
               | jq -r '.workflow_runs[0].id')
+
+            if [ -z "$RUN_ID" ]; then
+              echo "Error: No workflow runs found for the workflow ID: $WORKFLOW_ID"
+              exit 1
+            fi
           fi
 
+          echo "RUN_ID: $RUN_ID"
           echo "Downloading logs for Run ID: $RUN_ID"
 
           # Download the logs
@@ -50,8 +56,13 @@ jobs:
             "https://api.github.com/repos/${{ github.repository }}/actions/runs/$RUN_ID/logs" \
             -o logs/workflow_run_$RUN_ID.zip
 
+          # Verify the downloaded file
+          if [ ! -f logs/workflow_run_$RUN_ID.zip ]; then
+            echo "Error: Failed to download logs for Run ID: $RUN_ID"
+            exit 1
+          fi
+
       - name: Extract Logs
-        if: success()
         run: |
           unzip logs/workflow_run_${{ steps.fetch-logs.outputs.RUN_ID }}.zip -d logs/
 
