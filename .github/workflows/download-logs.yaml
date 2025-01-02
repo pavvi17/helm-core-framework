@@ -1,7 +1,14 @@
-name: Download Workflow Logs
+name: Download Workflow Logs for Multiple Runners
 
 on:
   workflow_dispatch:
+    inputs:
+      runner_id_1:
+        description: "ID of the first runner"
+        required: true
+      runner_id_2:
+        description: "ID of the second runner"
+        required: true
 
 jobs:
   download-logs:
@@ -10,42 +17,61 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Download logs of another workflow
+      - name: Download logs for the first runner
         env:
           GITHUB_TOKEN: ${{ secrets.MY_SECRET_TOKEN }}
-          WORKFLOW_RUN_ID: 12581139515
+          RUNNER_ID: ${{ inputs.runner_id_1 }}
           REPO: pavvi17/helm-core-framework
         run: |
-          # Fetch the logs
-          echo "Downloading logs for workflow run ID: $WORKFLOW_RUN_ID"
+          echo "Downloading logs for runner ID: $RUNNER_ID"
           curl -L -H "Authorization: token $GITHUB_TOKEN" \
                -H "Accept: application/vnd.github.v3+json" \
-               "https://api.github.com/repos/$REPO/actions/runs/$WORKFLOW_RUN_ID/logs" \
-               -o logs.zip
+               "https://api.github.com/repos/$REPO/actions/runs/$RUNNER_ID/logs" \
+               -o runner_${RUNNER_ID}_logs.zip
 
           # Validate the response
-          if [ ! -s logs.zip ]; then
-            echo "Error: Logs file is empty. Check the workflow run ID and permissions."
+          if [ ! -s runner_${RUNNER_ID}_logs.zip ]; then
+            echo "Error: Logs file is empty for runner ID $RUNNER_ID. Check the runner ID and permissions."
             exit 1
           fi
 
           # Check if the downloaded file is a valid ZIP archive
-          if ! unzip -tq logs.zip; then
-            echo "Error: Downloaded file is not a valid ZIP archive."
+          if ! unzip -tq runner_${RUNNER_ID}_logs.zip; then
+            echo "Error: Downloaded file for runner ID $RUNNER_ID is not a valid ZIP archive."
             exit 1
           fi
 
           # Unzip the logs
-          echo "Unzipping logs..."
-          unzip logs.zip -d logs
+          mkdir -p logs/runner_${RUNNER_ID}
+          unzip runner_${RUNNER_ID}_logs.zip -d logs/runner_${RUNNER_ID}
 
-          # List the contents of the logs directory
-          echo "Logs downloaded and unzipped:"
-          ls logs
-
-      - name: Debug logs download
+      - name: Download logs for the second runner
+        env:
+          GITHUB_TOKEN: ${{ secrets.MY_SECRET_TOKEN }}
+          RUNNER_ID: ${{ inputs.runner_id_2 }}
+          REPO: pavvi17/helm-core-framework
         run: |
-          echo "Downloaded file contents:"
+          echo "Downloading logs for runner ID: $RUNNER_ID"
+          curl -L -H "Authorization: token $GITHUB_TOKEN" \
+               -H "Accept: application/vnd.github.v3+json" \
+               "https://api.github.com/repos/$REPO/actions/runs/$RUNNER_ID/logs" \
+               -o runner_${RUNNER_ID}_logs.zip
+
+          # Validate the response
+          if [ ! -s runner_${RUNNER_ID}_logs.zip ]; then
+            echo "Error: Logs file is empty for runner ID $RUNNER_ID. Check the runner ID and permissions."
+            exit 1
+          fi
+
+          # Check if the downloaded file is a valid ZIP archive
+          if ! unzip -tq runner_${RUNNER_ID}_logs.zip; then
+            echo "Error: Downloaded file for runner ID $RUNNER_ID is not a valid ZIP archive."
+            exit 1
+          fi
+
+          # Unzip the logs
+          mkdir -p logs/runner_${RUNNER_ID}
+          unzip runner_${RUNNER_ID}_logs.zip -d logs/runner_${RUNNER_ID}
 
       - name: Upload Logs as Artifact
         uses: actions/upload-artifact@v3
