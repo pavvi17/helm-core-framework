@@ -84,3 +84,20 @@ jobs:
         with:
           name: runner-${{ inputs.runner_id_2 }}-logs
           path: logs/runner_${{ inputs.runner_id_2 }}
+
+      - name: Download Uploaded Artifact for Runner 1
+        uses: actions/download-artifact@v3
+        with:
+          name: runner-${{ inputs.runner_id_1 }}-logs
+          path: downloaded-artifacts/runner_${{ inputs.runner_id_1 }}
+
+      - name: Download Uploaded Artifact for Runner 2
+        uses: actions/download-artifact@v3
+        with:
+          name: runner-${{ inputs.runner_id_2 }}-logs
+          path: downloaded-artifacts/runner_${{ inputs.runner_id_2 }}
+
+      - name: Verify Downloaded Artifacts
+        run: |
+          echo "Listing contents of downloaded artifacts:"
+          ls -R downloaded-artifacts
