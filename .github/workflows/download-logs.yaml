@@ -11,7 +11,7 @@ on:
         description: " "
         required: false
       token:
-        description: "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"
+        description: "TOKEN"
         required: true
 
 jobs:
