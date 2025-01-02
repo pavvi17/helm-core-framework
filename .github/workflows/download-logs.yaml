@@ -13,7 +13,7 @@ jobs:
       - name: Download logs of another workflow
         env:
           GITHUB_TOKEN: ${{ secrets.MY_SECRET_TOKEN }} # Use the default token or your personal access token
-          WORKFLOW_RUN_ID: branch.yaml # Replace with the actual workflow run ID
+          WORKFLOW_RUN_ID: 12579124363 # Replace with the actual workflow run ID
           REPO: pavvi17/helm-core-framework # Replace with your repository owner and name
         run: |
           # Fetch the logs
