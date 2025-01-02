@@ -47,3 +47,9 @@ jobs:
         run: |
           echo "Downloaded file contents:"
           cat logs.zip
+
+      - name: Upload Logs as Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: workflow-logs
+          path: logs/
