@@ -102,5 +102,4 @@ jobs:
       - name: Check content
         run: |
           ls scripts
-          cd scrpts
-          chmod +x timestamp_script.sh
+          chmod +x scripts
