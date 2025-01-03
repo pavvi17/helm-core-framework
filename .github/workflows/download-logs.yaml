@@ -85,22 +85,22 @@ jobs:
           name: branch-runner-${{ inputs.branch_runner_id_2 }}-logs
           path: logs/branch-runner_${{ inputs.branch_runner_id_2 }}
 
-      # - name: Download Uploaded Artifact for Master Runner
-      #   uses: actions/download-artifact@v3
-      #   with:
-      #     name: master-runner-${{ inputs.master_runner_id_1 }}-logs
-      #     path: downloaded-artifacts/master-runner_${{ inputs.master_runner_id_1 }}
+      - name: Download Uploaded Artifact for Master Runner
+        uses: actions/download-artifact@v3
+        with:
+          name: master-runner-${{ inputs.master_runner_id_1 }}-logs
+          path: downloaded-artifacts/master-runner_${{ inputs.master_runner_id_1 }}
 
-      # - name: Download Uploaded Artifact for Branch Runner
-      #   uses: actions/download-artifact@v3
-      #   with:
-      #     name: branch-runner-${{ inputs.branch_runner_id_2 }}-logs
-      #     path: downloaded-artifacts/branch-runner_${{ inputs.branch_runner_id_2 }}
+      - name: Download Uploaded Artifact for Branch Runner
+        uses: actions/download-artifact@v3
+        with:
+          name: branch-runner-${{ inputs.branch_runner_id_2 }}-logs
+          path: downloaded-artifacts/branch-runner_${{ inputs.branch_runner_id_2 }}
 
-      - name: Verify Downloaded Artifacts
-        run: |
-          echo "Listing contents of downloaded artifacts:"
-          ls -R downloaded-artifacts
+      # - name: Verify Downloaded Artifacts
+      #   run: |
+      #     echo "Listing contents of downloaded artifacts:"
+      #     ls -R downloaded-artifacts
 
       - uses: actions/checkout@v4
         with:
