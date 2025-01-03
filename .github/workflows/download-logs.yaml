@@ -94,12 +94,18 @@ jobs:
           echo "Listing contents of downloaded artifacts:"
           ls -R downloaded-artifacts
 
-      - uses: actions/checkout@v4
-        with:
-          ref: main
-          sparse-checkout: scripts
-
-      - name: Check content
+      - name: Remove Timestamps from Files
         run: |
-          ls scripts
-          chmod +x scripts
+          echo "Removing timestamps from files..."
+          for file in downloaded-artifacts/runner_*; do
+            if [[ -f "$file" ]]; then
+              echo "Processing $file"
+              sed -i -E 's/[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}//g' "$file"
+              echo "Timestamps removed from $file"
+            fi
+          done
+
+      - name: Verify Downloaded Artifacts
+        run: |
+          echo "Listing contents of downloaded artifacts after timestamp removal:"
+          ls -R downloaded-artifacts
