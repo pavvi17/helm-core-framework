@@ -97,7 +97,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: main
-          sparse-checkout: /timestamp_script.sh
+          sparse-checkout: timestamp_script.sh
 
       - name: Check content
         run: |
