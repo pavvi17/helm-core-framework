@@ -3,11 +3,11 @@ name: Download Workflow Logs for Multiple Runners
 on:
   workflow_dispatch:
     inputs:
-      master_runner_id_1:
-        description: "ID of the master branch runner id"
+      runner_id_1:
+        description: "ID of the first runner"
         required: true
-      branch_runner_id_2:
-        description: "ID of the second branch runner id"
+      runner_id_2:
+        description: "ID of the second runner"
         required: true
 
 jobs:
@@ -20,7 +20,7 @@ jobs:
       - name: Download logs for the first runner
         env:
           GITHUB_TOKEN: ${{ secrets.MY_SECRET_TOKEN }}
-          RUNNER_ID: ${{ inputs.master_runner_id_1 }}
+          RUNNER_ID: ${{ inputs.runner_id_1 }}
           REPO: pavvi17/helm-core-framework
         run: |
           echo "Downloading logs for runner ID: $RUNNER_ID"
@@ -28,33 +28,29 @@ jobs:
                -H "Accept: application/vnd.github.v3+json" \
                "https://api.github.com/repos/$REPO/actions/runs/$RUNNER_ID/logs" \
                -o runner_${RUNNER_ID}_logs.zip
-
           # Validate the response
           if [ ! -s runner_${RUNNER_ID}_logs.zip ]; then
             echo "Error: Logs file is empty for runner ID $RUNNER_ID. Check the runner ID and permissions."
             exit 1
           fi
-
           # Check if the downloaded file is a valid ZIP archive
           if ! unzip -tq runner_${RUNNER_ID}_logs.zip; then
             echo "Error: Downloaded file for runner ID $RUNNER_ID is not a valid ZIP archive."
             exit 1
           fi
-
           # Unzip the logs
           mkdir -p logs/runner_${RUNNER_ID}
           unzip runner_${RUNNER_ID}_logs.zip -d logs/runner_${RUNNER_ID}
-
       - name: Upload Logs for Runner 1
         uses: actions/upload-artifact@v3
         with:
-          name: master-runner-${{ inputs.master_runner_id_1 }}-logs
-          path: logs/master-runner_${{ inputs.master_runner_id_1 }}
+          name: runner-${{ inputs.runner_id_1 }}-logs
+          path: logs/runner_${{ inputs.runner_id_1 }}
 
       - name: Download logs for the second runner
         env:
           GITHUB_TOKEN: ${{ secrets.MY_SECRET_TOKEN }}
-          RUNNER_ID: ${{ inputs.branch_runner_id_2 }}
+          RUNNER_ID: ${{ inputs.runner_id_2 }}
           REPO: pavvi17/helm-core-framework
         run: |
           echo "Downloading logs for runner ID: $RUNNER_ID"
@@ -62,45 +58,41 @@ jobs:
                -H "Accept: application/vnd.github.v3+json" \
                "https://api.github.com/repos/$REPO/actions/runs/$RUNNER_ID/logs" \
                -o runner_${RUNNER_ID}_logs.zip
-
           # Validate the response
           if [ ! -s runner_${RUNNER_ID}_logs.zip ]; then
             echo "Error: Logs file is empty for runner ID $RUNNER_ID. Check the runner ID and permissions."
             exit 1
           fi
-
           # Check if the downloaded file is a valid ZIP archive
           if ! unzip -tq runner_${RUNNER_ID}_logs.zip; then
             echo "Error: Downloaded file for runner ID $RUNNER_ID is not a valid ZIP archive."
             exit 1
           fi
-
           # Unzip the logs
           mkdir -p logs/runner_${RUNNER_ID}
           unzip runner_${RUNNER_ID}_logs.zip -d logs/runner_${RUNNER_ID}
-
       - name: Upload Logs for Runner 2
         uses: actions/upload-artifact@v3
         with:
-          name: branch-runner-${{ inputs.branch_runner_id_2 }}-logs
-          path: logs/branch-runner_${{ inputs.branch_runner_id_2 }}
+          name: runner-${{ inputs.runner_id_2 }}-logs
+          path: logs/runner_${{ inputs.runner_id_2 }}
 
-      # - name: Download Uploaded Artifact for Master Runner
-      #   uses: actions/download-artifact@v3
-      #   with:
-      #     name: master-runner-${{ inputs.master_runner_id_1 }}-logs
-      #     path: downloaded-artifacts/master-runner_${{ inputs.master_runner_id_1 }}
+      - name: Download Uploaded Artifact for Runner 1
+        uses: actions/download-artifact@v3
+        with:
+          name: runner-${{ inputs.runner_id_1 }}-logs
+          path: downloaded-artifacts/runner_${{ inputs.runner_id_1 }}
 
-      # - name: Download Uploaded Artifact for Branch Runner
-      #   uses: actions/download-artifact@v3
-      #   with:
-      #     name: branch-runner-${{ inputs.branch_runner_id_2 }}-logs
-      #     path: downloaded-artifacts/branch-runner_${{ inputs.branch_runner_id_2 }}
+      - name: Download Uploaded Artifact for Runner 2
+        uses: actions/download-artifact@v3
+        with:
+          name: runner-${{ inputs.runner_id_2 }}-logs
+          path: downloaded-artifacts/runner_${{ inputs.runner_id_2 }}
 
-      # - name: Verify Downloaded Artifacts
-      #   run: |
-      #     echo "Listing contents of downloaded artifacts:"
-      #     ls -R downloaded-artifacts
+      - name: Verify Downloaded Artifacts
+        run: |
+          echo "Listing contents of downloaded artifacts:"
+          ls -R downloaded-artifacts
 
       - uses: actions/checkout@v4
         with:
