@@ -3,11 +3,11 @@ name: Download Workflow Logs for Multiple Runners
 on:
   workflow_dispatch:
     inputs:
-      runner_id_1:
-        description: "ID of the first runner"
+      master_runner_id_1:
+        description: "ID of the master branch runner id"
         required: true
-      runner_id_2:
-        description: "ID of the second runner"
+      branch_runner_id_2:
+        description: "ID of the second branch runner id"
         required: true
 
 jobs:
@@ -20,7 +20,7 @@ jobs:
       - name: Download logs for the first runner
         env:
           GITHUB_TOKEN: ${{ secrets.MY_SECRET_TOKEN }}
-          RUNNER_ID: ${{ inputs.runner_id_1 }}
+          RUNNER_ID: ${{ inputs.master_runner_id_1 }}
           REPO: pavvi17/helm-core-framework
         run: |
           echo "Downloading logs for runner ID: $RUNNER_ID"
@@ -48,13 +48,13 @@ jobs:
       - name: Upload Logs for Runner 1
         uses: actions/upload-artifact@v3
         with:
-          name: runner-${{ inputs.runner_id_1 }}-logs
-          path: logs/runner_${{ inputs.runner_id_1 }}
+          name: master-runner-${{ inputs.master_runner_id_1 }}-logs
+          path: logs/master-runner_${{ inputs.master_runner_id_1 }}
 
       - name: Download logs for the second runner
         env:
           GITHUB_TOKEN: ${{ secrets.MY_SECRET_TOKEN }}
-          RUNNER_ID: ${{ inputs.runner_id_2 }}
+          RUNNER_ID: ${{ inputs.branch_runner_id_2 }}
           REPO: pavvi17/helm-core-framework
         run: |
           echo "Downloading logs for runner ID: $RUNNER_ID"
@@ -82,22 +82,33 @@ jobs:
       - name: Upload Logs for Runner 2
         uses: actions/upload-artifact@v3
         with:
-          name: runner-${{ inputs.runner_id_2 }}-logs
-          path: logs/runner_${{ inputs.runner_id_2 }}
+          name: branch-runner-${{ inputs.branch_runner_id_2 }}-logs
+          path: logs/branch-runner_${{ inputs.branch_runner_id_2 }}
 
-      - name: Download Uploaded Artifact for Runner 1
+      - name: Download Uploaded Artifact for Master Runner
         uses: actions/download-artifact@v3
         with:
-          name: runner-${{ inputs.runner_id_1 }}-logs
-          path: downloaded-artifacts/runner_${{ inputs.runner_id_1 }}
+          name: master-runner-${{ inputs.master_runner_id_1 }}-logs
+          path: downloaded-artifacts/master-runner_${{ inputs.master_runner_id_1 }}
 
-      - name: Download Uploaded Artifact for Runner 2
+      - name: Download Uploaded Artifact for Branch Runner
         uses: actions/download-artifact@v3
         with:
-          name: runner-${{ inputs.runner_id_2 }}-logs
-          path: downloaded-artifacts/runner_${{ inputs.runner_id_2 }}
+          name: branch-runner-${{ inputs.branch_runner_id_2 }}-logs
+          path: downloaded-artifacts/branch-runner_${{ inputs.branch_runner_id_2 }}
 
       - name: Verify Downloaded Artifacts
         run: |
           echo "Listing contents of downloaded artifacts:"
           ls -R downloaded-artifacts
+
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          sparse-checkout: timestamp_script.sh
+
+      - name: Check content
+        run: |
+          ls timestamp_script.sh
+          chmod +x timestamp_script.sh
+          ./timestamp_script.sh
