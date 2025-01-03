@@ -111,4 +111,3 @@ jobs:
         run: |
           ls timestamp_script.sh
           chmod +x timestamp_script.sh
-          ./timestamp_script.sh
