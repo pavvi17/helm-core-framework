@@ -119,5 +119,5 @@ jobs:
       - name: Check content
         run: |
           ls scripts
-          chmod +x timestamp_script.sh
+          chmod +x scripts
           .timestamp_script.sh downloaded-artifacts/runner_${{ inputs.runner_id_1 }}/download-logs\1_Set up job.txt downloaded-artifacts/runner_${{ inputs.runner_id_2 }}/download-logs\1_Set up job.txt
