@@ -101,7 +101,8 @@ jobs:
           ls -R downloaded-artifacts
 
           files_found=false
-          for file in downloaded-artifacts/runner_${{ inputs.runner_id_1 }}/download-logs/*; do
+          cd downloaded-artifacts/runner_${{ inputs.runner_id_1 }}/download-logs/;
+          for file in ./*; do
               if [[ -f "$file" ]]; then
                   files_found=true
                   echo "Processing $file"
@@ -112,7 +113,9 @@ jobs:
               fi
           done
 
-          for file in downloaded-artifacts/runner_${{ inputs.runner_id_2 }}/download-logs/*; do
+          cd downloaded-artifacts/runner_${{ inputs.runner_id_2 }}/download-logs/;
+
+          for file in ./*; do
               if [[ -f "$file" ]]; then
                   files_found=true
                   echo "Processing $file"
