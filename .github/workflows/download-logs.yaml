@@ -93,18 +93,29 @@ jobs:
         run: |
           echo "Listing contents of downloaded artifacts:"
           ls -R downloaded-artifacts
-
+          
       - name: Remove Timestamps from Files
         run: |
           echo "Removing timestamps from files..."
-          for file in downloaded-artifacts/runner_*; do
-            if [[ -f "$file" ]]; then
-              echo "Processing $file"
-              sed -E 's/^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\.[0-9]+Z //' "$file"
-              echo "Timestamps removed from $file"
-              cat "$file"
-            fi
+          echo "Listing all files in downloaded-artifacts:"
+          ls -R downloaded-artifacts
+
+          files_found=false
+          for file in downloaded-artifacts/runner_*/download-logs/*; do
+              if [[ -f "$file" ]]; then
+                  files_found=true
+                  echo "Processing $file"
+                  sed -E 's/^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\.[0-9]+Z //' "$file" > temp_file && mv temp_file "$file"
+                  echo "Timestamps removed from $file"
+                  echo "Contents of $file:"
+                  cat "$file"
+              fi
           done
+
+          if [[ "$files_found" = false ]]; then
+              echo "No files found matching the pattern 'downloaded-artifacts/runner_*/download-logs/*'."
+          fi
+
 
       - name: Verify Downloaded Artifacts
         run: |
