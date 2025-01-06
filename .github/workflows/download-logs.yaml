@@ -102,29 +102,26 @@ jobs:
 
           files_found=false
           for file in downloaded-artifacts/runner_${{ inputs.runner_id_1 }}/download-logs/*; do
-              if [[ -f "$master_branch" ]]; then
+              if [[ -f "$file" ]]; then
                   files_found=true
                   echo "Processing $file"
-                  sed -E 's/^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\.[0-9]+Z //' "$master_branch" > temp_file && mv temp_file "$master_branch"
-                  echo "Timestamps removed from $master_branch"
-                  echo "Contents of $master_branch:"
-                  cat "$master_branch"
-              fi
-          for file in downloaded-artifacts/runner_${{ inputs.runner_id_2 }}/download-logs/*; do
-              if [[ -f "$Branch_2" ]]; then
-                  files_found=true
-                  echo "Processing $file"
-                  sed -E 's/^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\.[0-9]+Z //' "$Branch_2" > temp_file && mv temp_file "$Branch_2"
-                  echo "Timestamps removed from $Branch_2"
-                  echo "Contents of $Branch_2:"
-                  cat "$Branch_2"
+                  sed -E 's/^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\.[0-9]+Z //' "$file" > temp_file && mv temp_file "master-$file"
+                  echo "Timestamps removed from $file"
+                  echo "Contents of $file:"
+                  cat "master-$file"
               fi
           done
 
-          if [[ "$files_found" = false ]]; then
-              echo "No files found matching the pattern 'downloaded-artifacts/runner_*/download-logs/*'."
-          fi
-
+          for file in downloaded-artifacts/runner_${{ inputs.runner_id_2 }}/download-logs/*; do
+              if [[ -f "$file" ]]; then
+                  files_found=true
+                  echo "Processing $file"
+                  sed -E 's/^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\.[0-9]+Z //' "$file" > temp_file && mv temp_file "branch-$file"
+                  echo "Timestamps removed from $file"
+                  echo "Contents of $file:"
+                  cat "branch-$file"
+              fi
+          done
 
       # - name: Verify Downloaded Artifacts
       #   run: |
