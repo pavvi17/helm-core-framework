@@ -101,14 +101,23 @@ jobs:
           ls -R downloaded-artifacts
 
           files_found=false
-          for file in downloaded-artifacts/runner_*/download-logs/*; do
+          for file in downloaded-artifacts/runner_${{ inputs.runner_id_1 }}/download-logs/*; do
               if [[ -f "$file" ]]; then
                   files_found=true
                   echo "Processing $file"
-                  sed -E 's/^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\.[0-9]+Z //' "$file" > temp_file && mv temp_file "$file"
-                  echo "Timestamps removed from $file"
-                  echo "Contents of $file:"
-                  cat "$file"
+                  sed -E 's/^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\.[0-9]+Z //' "$master_branch" > temp_file && mv temp_file "$master_branch"
+                  echo "Timestamps removed from $master_branch"
+                  echo "Contents of $master_branch:"
+                  cat "$master_branch"
+              fi
+          for file in downloaded-artifacts/runner_${{ inputs.runner_id_2 }}/download-logs/*; do
+              if [[ -f "$file" ]]; then
+                  files_found=true
+                  echo "Processing $file"
+                  sed -E 's/^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\.[0-9]+Z //' "$Branch_2" > temp_file && mv temp_file "$Branch_2"
+                  echo "Timestamps removed from $Branch_2"
+                  echo "Contents of $Branch_2:"
+                  cat "$Branch_2"
               fi
           done
 
@@ -117,23 +126,23 @@ jobs:
           fi
 
 
-      - name: Verify Downloaded Artifacts
-        run: |
-          echo "Listing contents of downloaded artifacts after timestamp removal:"
-          ls -R downloaded-artifacts;
-          cat "downloaded-artifacts/runner_12581139515/download-logs/1_Set up job.txt"
+      # - name: Verify Downloaded Artifacts
+      #   run: |
+      #     echo "Listing contents of downloaded artifacts after timestamp removal:"
+      #     ls -R downloaded-artifacts;
+      #     cat "downloaded-artifacts/runner_12581139515/download-logs/1_Set up job.txt"
 
 
-      - uses: actions/checkout@v4
-        with:
-          ref: main
-          sparse-checkout: |
-            scripts
-          clean: true
+      # - uses: actions/checkout@v4
+      #   with:
+      #     ref: main
+      #     sparse-checkout: |
+      #       scripts
+      #     clean: true
 
-      - name: Check content
-        run: |
-          ls ; pwd ;
-          chmod +x scripts/timestamp_script.sh
-          ./scripts/timestamp_script.sh downloaded-artifacts/runner_${{ inputs.runner_id_1 }}/download-logs/"1_Set up job.txt" downloaded-artifacts/runner_${{ inputs.runner_id_2 }}/download-logs/"1_Set up job.txt"
-          ls -R;
+      # - name: Check content
+      #   run: |
+      #     ls ; pwd ;
+      #     chmod +x scripts/timestamp_script.sh
+      #     ./scripts/timestamp_script.sh downloaded-artifacts/runner_${{ inputs.runner_id_1 }}/download-logs/"1_Set up job.txt" downloaded-artifacts/runner_${{ inputs.runner_id_2 }}/download-logs/"1_Set up job.txt"
+      #     ls -R;
