@@ -102,9 +102,9 @@ jobs:
               echo "Processing $file"
               sed -i -E 's/[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}//g' "$file"
               echo "Timestamps removed from $file"
+              cat "$file"
             fi
           done
-          cat "$file"
 
       - name: Verify Downloaded Artifacts
         run: |
