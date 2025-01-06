@@ -109,3 +109,15 @@ jobs:
         run: |
           echo "Listing contents of downloaded artifacts after timestamp removal:"
           ls -R downloaded-artifacts
+
+
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          sparse-checkout: scripts
+
+      - name: Check content
+        run: |
+          ls scripts/timestamp_script.sh
+          chmod +x timestamp_script.sh
+          .timestamp_script.sh downloaded-artifacts/runner_${runner_id_1}}/download-logs\1_Set up job.txt downloaded-artifacts/runner_${{runner_id_2}}/download-logs\1_Set up job.txt
