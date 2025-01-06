@@ -102,7 +102,7 @@ jobs:
 
           files_found=false
           cd downloaded-artifacts/runner_${{ inputs.runner_id_1 }}/download-logs/;
-          for file in ./"1_Set\ up\ job.txt"; do
+          for file in ./*"; do
               if [[ -f "$file" ]]; then
                   echo "Processing $file"
                   base_name=$(basename "$file")
@@ -114,7 +114,7 @@ jobs:
           done
 
           cd downloaded-artifacts/runner_${{ inputs.runner_id_2 }}/download-logs/;
-          for file in ./"1_Set\ up\ job.txt"; do
+          for file in ./*; do
               if [[ -f "$file" ]]; then
                   files_found=true
                   echo "Processing $file"
