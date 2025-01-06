@@ -108,7 +108,8 @@ jobs:
       - name: Verify Downloaded Artifacts
         run: |
           echo "Listing contents of downloaded artifacts after timestamp removal:"
-          ls -R downloaded-artifacts
+          ls -R downloaded-artifacts;
+          cat "downloaded-artifacts/runner_12581139515/download-logs/1_Set up job.txt"
 
 
       - uses: actions/checkout@v4
@@ -116,6 +117,7 @@ jobs:
           ref: main
           sparse-checkout: |
             scripts
+          clean: true
 
       - name: Check content
         run: |
