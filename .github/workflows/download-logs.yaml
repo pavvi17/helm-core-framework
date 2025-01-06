@@ -105,6 +105,7 @@ jobs:
           for file in ./*; do
               if [[ -f "$file" ]]; then
                   files_found=true
+                  base_name=$(basename "$file")
                   echo "Processing $file"
                   sed -E 's/^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\.[0-9]+Z //' "$file" > temp_file && mv temp_file "master-$base_name"
                   echo "Timestamps removed from $file"
@@ -118,6 +119,7 @@ jobs:
           for file in ./*; do
               if [[ -f "$file" ]]; then
                   files_found=true
+                  base_name=$(basename "$file")
                   echo "Processing $file"
                   sed -E 's/^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\.[0-9]+Z //' "$file" > temp_file && mv temp_file "branch-$base_name"
                   echo "Timestamps removed from $file"
