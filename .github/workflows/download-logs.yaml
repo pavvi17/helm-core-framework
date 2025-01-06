@@ -104,6 +104,7 @@ jobs:
               echo "Timestamps removed from $file"
             fi
           done
+          cat "$file"
 
       - name: Verify Downloaded Artifacts
         run: |
