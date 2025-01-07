@@ -112,7 +112,6 @@ jobs:
                 mv temp_file "master-$base_name"
                 echo "Timestamps removed from $file"
                 echo "Contents of master-$base_name:"
-                cat "master-$base_name"
               fi
             done
             cd - || exit
@@ -132,7 +131,6 @@ jobs:
                 mv temp_file "branch-$base_name"
                 echo "Timestamps removed from $file"
                 echo "Contents of branch-$base_name:"
-                cat "branch-$base_name"
               fi
             done
             cd - || exit
