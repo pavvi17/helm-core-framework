@@ -147,6 +147,7 @@ jobs:
           # Paths to the master and branch files
           MASTER_FILE=downloaded-artifacts/runner_${{ inputs.runner_id_1 }}/download-logs/master-${BASE_NAME}
           BRANCH_FILE=downloaded-artifacts/runner_${{ inputs.runner_id_2 }}/download-logs/branch-${BASE_NAME}
+          pwd; ls;
           ls $MASTER_FILE;
           ls $BRANCH_FILE
 
