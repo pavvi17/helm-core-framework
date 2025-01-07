@@ -112,6 +112,7 @@ jobs:
                 mv temp_file "master-$base_name"
                 echo "Timestamps removed from $file"
                 echo "Contents of master-$base_name:"
+                cat "master-$base_name"
               fi
             done
             cd - || exit
@@ -131,6 +132,7 @@ jobs:
                 mv temp_file "branch-$base_name"
                 echo "Timestamps removed from $file"
                 echo "Contents of branch-$base_name:"
+                cat "branch-$base_name"
               fi
             done
             cd - || exit
@@ -138,3 +140,39 @@ jobs:
             echo "Directory for runner_${{ inputs.runner_id_2 }} does not exist!"
           fi
 
+      - name: Generate Vimdiff Visualization
+        env:
+          BASE_NAME: "2_Checkout code.txt" # Replace with your dynamic file name logic
+        run: |
+          # Paths to the master and branch files
+          MASTER_FILE=downloaded-artifacts/runner_${{ inputs.runner_id_1 }}/download-logs/master-${BASE_NAME}
+          BRANCH_FILE=downloaded-artifacts/runner_${{ inputs.runner_id_2 }}/download-logs/branch-${BASE_NAME}
+
+          # Check if both files exist
+          if [[ -f "$MASTER_FILE" && -f "$BRANCH_FILE" ]]; then
+              echo "Creating Vimdiff visualization..."
+              mkdir -p screenshots
+
+              # Use Xvfb to run Vimdiff in a virtual framebuffer
+              xvfb-run --server-args="-screen 0 1024x768x24" vimdiff "$MASTER_FILE" "$BRANCH_FILE" \
+                -c 'set diffopt+=vertical' \
+                -c 'TOhtml' \
+                -c 'w! vimdiff-output.html' \
+                -c 'qa!'
+
+              echo "Capturing Vimdiff visualization as a screenshot..."
+              xvfb-run --server-args="-screen 0 1024x768x24" vimdiff "$MASTER_FILE" "$BRANCH_FILE" -c ':sleep 2' &
+              sleep 3 # Give the GUI enough time to render
+              DISPLAY=:99 scrot screenshots/vimdiff-screenshot.png
+          else
+              echo "One or both files are missing."
+              exit 1
+          fi
+
+      - name: Upload Vimdiff Outputs
+        uses: actions/upload-artifact@v4
+        with:
+          name: vimdiff-visualization
+          path: |
+            vimdiff-output.html
+            screenshots/vimdiff-screenshot.png
