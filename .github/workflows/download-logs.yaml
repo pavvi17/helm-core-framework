@@ -14,149 +14,85 @@ jobs:
   download-logs:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
+      - name: Checkout Repository
         uses: actions/checkout@v2
 
-      - name: Download logs for the first runner
+      - name: Download Logs for Runner 1
         env:
           GITHUB_TOKEN: ${{ secrets.MY_SECRET_TOKEN }}
           RUNNER_ID: ${{ inputs.runner_id_1 }}
           REPO: pavvi17/helm-core-framework
         run: |
-          echo "Downloading logs for runner ID: $RUNNER_ID"
           curl -L -H "Authorization: token $GITHUB_TOKEN" \
                -H "Accept: application/vnd.github.v3+json" \
                "https://api.github.com/repos/$REPO/actions/runs/$RUNNER_ID/logs" \
                -o runner_${RUNNER_ID}_logs.zip
-          # Validate the response
-          if [ ! -s runner_${RUNNER_ID}_logs.zip ]; then
-            echo "Error: Logs file is empty for runner ID $RUNNER_ID. Check the runner ID and permissions."
-            exit 1
-          fi
-          # Check if the downloaded file is a valid ZIP archive
-          if ! unzip -tq runner_${RUNNER_ID}_logs.zip; then
-            echo "Error: Downloaded file for runner ID $RUNNER_ID is not a valid ZIP archive."
-            exit 1
-          fi
-          # Unzip the logs
           mkdir -p logs/runner_${RUNNER_ID}
-          unzip runner_${RUNNER_ID}_logs.zip -d logs/runner_${RUNNER_ID}
+          unzip -o runner_${RUNNER_ID}_logs.zip -d logs/runner_${RUNNER_ID}
+
       - name: Upload Logs for Runner 1
         uses: actions/upload-artifact@v3
         with:
           name: runner-${{ inputs.runner_id_1 }}-logs
           path: logs/runner_${{ inputs.runner_id_1 }}
 
-      - name: Download logs for the second runner
+      - name: Download Logs for Runner 2
         env:
           GITHUB_TOKEN: ${{ secrets.MY_SECRET_TOKEN }}
           RUNNER_ID: ${{ inputs.runner_id_2 }}
           REPO: pavvi17/helm-core-framework
         run: |
-          echo "Downloading logs for runner ID: $RUNNER_ID"
           curl -L -H "Authorization: token $GITHUB_TOKEN" \
                -H "Accept: application/vnd.github.v3+json" \
                "https://api.github.com/repos/$REPO/actions/runs/$RUNNER_ID/logs" \
                -o runner_${RUNNER_ID}_logs.zip
-          # Validate the response
-          if [ ! -s runner_${RUNNER_ID}_logs.zip ]; then
-            echo "Error: Logs file is empty for runner ID $RUNNER_ID. Check the runner ID and permissions."
-            exit 1
-          fi
-          # Check if the downloaded file is a valid ZIP archive
-          if ! unzip -tq runner_${RUNNER_ID}_logs.zip; then
-            echo "Error: Downloaded file for runner ID $RUNNER_ID is not a valid ZIP archive."
-            exit 1
-          fi
-          # Unzip the logs
           mkdir -p logs/runner_${RUNNER_ID}
-          unzip runner_${RUNNER_ID}_logs.zip -d logs/runner_${RUNNER_ID}
+          unzip -o runner_${RUNNER_ID}_logs.zip -d logs/runner_${RUNNER_ID}
+
       - name: Upload Logs for Runner 2
         uses: actions/upload-artifact@v3
         with:
           name: runner-${{ inputs.runner_id_2 }}-logs
           path: logs/runner_${{ inputs.runner_id_2 }}
 
-      - name: Download Uploaded Artifact for Runner 1
-        uses: actions/download-artifact@v3
-        with:
-          name: runner-${{ inputs.runner_id_1 }}-logs
-          path: downloaded-artifacts/runner_${{ inputs.runner_id_1 }}
-
-      - name: Download Uploaded Artifact for Runner 2
-        uses: actions/download-artifact@v3
-        with:
-          name: runner-${{ inputs.runner_id_2 }}-logs
-          path: downloaded-artifacts/runner_${{ inputs.runner_id_2 }}
-
-      - name: Verify Downloaded Artifacts
+      - name: Process Logs
         run: |
-          echo "Listing contents of downloaded artifacts:"
-          ls -R downloaded-artifacts
-          
-      - name: Remove Timestamps from Files
-        run: |
-          echo "Removing timestamps from files..."
-          echo "Listing all files in downloaded-artifacts:"
-          ls -R downloaded-artifacts
+          mkdir -p processed
+          cd logs
+          MASTER_FILE="runner_${{ inputs.runner_id_1 }}/1_Set up job.txt"
+          BRANCH_FILE="runner_${{ inputs.runner_id_2 }}/1_Set up job.txt"
 
-          files_found=false
-
-          # Process files for the first runner
-          cd downloaded-artifacts/runner_${{ inputs.runner_id_1 }}/download-logs/ || exit 1
-          for file in ./*.txt; do
-              if [[ -f "$file" ]]; then
-                  files_found=true
-                  echo "Processing $file"
-                  base_name=$(basename "$file")
-                  sed -E 's/^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\.[0-9]+Z //' "$file" > temp_file
-                  mv temp_file "master-$base_name"
-                  echo "Timestamps removed from $file"
-                  echo "Contents of master-$base_name:"
-                  cat "master-$base_name"
-              fi
-          done
-          cd - || exit 1
-
-          # Process files for the second runner
-          cd downloaded-artifacts/runner_${{ inputs.runner_id_2 }}/download-logs/ || exit 1
-          for file in ./*.txt; do
-              if [[ -f "$file" ]]; then
-                  files_found=true
-                  echo "Processing $file"
-                  base_name=$(basename "$file")
-                  sed -E 's/^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\.[0-9]+Z //' "$file" > temp_file
-                  mv temp_file "branch-$base_name"
-                  echo "Timestamps removed from $file"
-                  echo "Contents of branch-$base_name:"
-                  cat "branch-$base_name"
-              fi
-          done
-          cd - || exit 1
-
-          if [ "$files_found" = false ]; then
-              echo "No .txt files found in either runner's logs."
-              exit 1
+          # Ensure the files exist
+          if [[ ! -f $MASTER_FILE ]] || [[ ! -f $BRANCH_FILE ]]; then
+            echo "Error: Both files must exist for comparison!"
+            exit 1
           fi
-        shell: bash
 
-      # - name: Verify Downloaded Artifacts
-      #   run: |
-      #     echo "Listing contents of downloaded artifacts after timestamp removal:"
-      #     ls -R downloaded-artifacts;
-      #     cat "downloaded-artifacts/runner_12581139515/download-logs/1_Set up job.txt"
+          # Remove timestamps
+          sed -E 's/^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\.[0-9]+Z //' "$MASTER_FILE" > processed/master.txt
+          sed -E 's/^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\.[0-9]+Z //' "$BRANCH_FILE" > processed/branch.txt
 
+      - name: Install Vimdiff and Related Tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y vim vim-gtk3 xvfb scrot
 
-      # - uses: actions/checkout@v4
-      #   with:
-      #     ref: main
-      #     sparse-checkout: |
-      #       scripts
-      #     clean: true
+      - name: Generate Vimdiff Visualization
+        run: |
+          mkdir -p screenshots
+          xvfb-run --server-args="-screen 0 1024x768x24" vimdiff processed/master.txt processed/branch.txt \
+            -c 'set diffopt+=vertical' \
+            -c 'TOhtml' \
+            -c 'w! vimdiff-output.html' \
+            -c 'qa!'
+          xvfb-run --server-args="-screen 0 1024x768x24" vimdiff processed/master.txt processed/branch.txt -c ':sleep 2' &
+          sleep 3
+          DISPLAY=:99 scrot screenshots/vimdiff-screenshot.png
 
-      # - name: Check content
-      #   run: |
-      #     ls ; pwd ;
-      #     chmod +x scripts/timestamp_script.sh
-      #     ./scripts/timestamp_script.sh downloaded-artifacts/runner_${{ inputs.runner_id_1 }}/download-logs/"1_Set up job.txt" downloaded-artifacts/runner_${{ inputs.runner_id_2 }}/download-logs/"1_Set up job.txt"
-      #     ls -R;
+      - name: Upload Vimdiff Outputs
+        uses: actions/upload-artifact@v4
+        with:
+          name: vimdiff-visualization
+          path: |
+            vimdiff-output.html
+            screenshots/vimdiff-screenshot.png
