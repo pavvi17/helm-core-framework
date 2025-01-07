@@ -145,7 +145,7 @@ jobs:
           DISPLAY: 99
         run: |
           # Define base name
-          BASE_NAME="1_Set up job.txt" # Replace with dynamic logic if needed
+          BASE_NAME="3_Checkout code.txt" # Replace with dynamic logic if needed
           # Paths to the master and branch files
           MASTER_FILE=downloaded-artifacts/runner_${{ inputs.runner_id_1 }}/simple-run/master-${BASE_NAME}
           BRANCH_FILE=downloaded-artifacts/runner_${{ inputs.runner_id_2 }}/simple-run/branch-${BASE_NAME}
