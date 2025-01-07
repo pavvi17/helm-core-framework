@@ -23,12 +23,15 @@ jobs:
           RUNNER_ID: ${{ inputs.runner_id_1 }}
           REPO: pavvi17/helm-core-framework
         run: |
+          echo "Downloading logs for Runner 1: $RUNNER_ID"
           curl -L -H "Authorization: token $GITHUB_TOKEN" \
                -H "Accept: application/vnd.github.v3+json" \
                "https://api.github.com/repos/$REPO/actions/runs/$RUNNER_ID/logs" \
                -o runner_${RUNNER_ID}_logs.zip
           mkdir -p logs/runner_${RUNNER_ID}
           unzip -o runner_${RUNNER_ID}_logs.zip -d logs/runner_${RUNNER_ID}
+          echo "Logs extracted for Runner 1:"
+          ls -R logs/runner_${RUNNER_ID}
 
       - name: Upload Logs for Runner 1
         uses: actions/upload-artifact@v3
@@ -42,12 +45,15 @@ jobs:
           RUNNER_ID: ${{ inputs.runner_id_2 }}
           REPO: pavvi17/helm-core-framework
         run: |
+          echo "Downloading logs for Runner 2: $RUNNER_ID"
           curl -L -H "Authorization: token $GITHUB_TOKEN" \
                -H "Accept: application/vnd.github.v3+json" \
                "https://api.github.com/repos/$REPO/actions/runs/$RUNNER_ID/logs" \
                -o runner_${RUNNER_ID}_logs.zip
           mkdir -p logs/runner_${RUNNER_ID}
           unzip -o runner_${RUNNER_ID}_logs.zip -d logs/runner_${RUNNER_ID}
+          echo "Logs extracted for Runner 2:"
+          ls -R logs/runner_${RUNNER_ID}
 
       - name: Upload Logs for Runner 2
         uses: actions/upload-artifact@v3
@@ -55,20 +61,26 @@ jobs:
           name: runner-${{ inputs.runner_id_2 }}-logs
           path: logs/runner_${{ inputs.runner_id_2 }}
 
-      - name: Process Logs
+      - name: Verify Log Files for Comparison
         run: |
-          mkdir -p processed
-          cd logs
-          MASTER_FILE="runner_${{ inputs.runner_id_1 }}/1_Set up job.txt"
-          BRANCH_FILE="runner_${{ inputs.runner_id_2 }}/1_Set up job.txt"
-
-          # Ensure the files exist
-          if [[ ! -f $MASTER_FILE ]] || [[ ! -f $BRANCH_FILE ]]; then
-            echo "Error: Both files must exist for comparison!"
+          echo "Verifying files for comparison..."
+          MASTER_FILE="logs/runner_${{ inputs.runner_id_1 }}/1_Set up job.txt"
+          BRANCH_FILE="logs/runner_${{ inputs.runner_id_2 }}/1_Set up job.txt"
+          echo "Checking existence of: $MASTER_FILE and $BRANCH_FILE"
+          if [[ ! -f "$MASTER_FILE" ]]; then
+            echo "Error: File $MASTER_FILE does not exist!"
+            exit 1
+          fi
+          if [[ ! -f "$BRANCH_FILE" ]]; then
+            echo "Error: File $BRANCH_FILE does not exist!"
             exit 1
           fi
 
-          # Remove timestamps
+      - name: Process Logs
+        run: |
+          mkdir -p processed
+          MASTER_FILE="logs/runner_${{ inputs.runner_id_1 }}/1_Set up job.txt"
+          BRANCH_FILE="logs/runner_${{ inputs.runner_id_2 }}/1_Set up job.txt"
           sed -E 's/^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\.[0-9]+Z //' "$MASTER_FILE" > processed/master.txt
           sed -E 's/^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\.[0-9]+Z //' "$BRANCH_FILE" > processed/branch.txt
 
