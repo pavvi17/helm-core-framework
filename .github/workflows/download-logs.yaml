@@ -138,6 +138,7 @@ jobs:
               echo "No .txt files found in either runner's logs."
               exit 1
           fi
+        shell: bash
 
       # - name: Verify Downloaded Artifacts
       #   run: |
