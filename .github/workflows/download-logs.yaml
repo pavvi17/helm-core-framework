@@ -141,15 +141,32 @@ jobs:
           fi
 
       - name: Generate Vimdiff Visualization
-        env:
-          BASE_NAME: "2_Checkout code.txt" # Replace with your dynamic file name logic
+        # env:
+        #   BASE_NAME: "2_Checkout code.txt" # Replace with your dynamic file name logic
         run: |
+          # Define base name
+          BASE_NAME="2_Checkout code.txt" # Replace with dynamic logic if needed
           # Paths to the master and branch files
           MASTER_FILE=downloaded-artifacts/runner_${{ inputs.runner_id_1 }}/download-logs/master-${BASE_NAME}
           BRANCH_FILE=downloaded-artifacts/runner_${{ inputs.runner_id_2 }}/download-logs/branch-${BASE_NAME}
-          pwd; ls;
-          ls $MASTER_FILE;
-          ls $BRANCH_FILE
+          echo "Current working directory: $(pwd)"
+          echo "Listing current directory contents:"
+          ls -R
+          echo "Checking master file: $MASTER_FILE"
+          if [[ ! -f "$MASTER_FILE" ]]; then
+            echo "Error: Master file does not exist at $MASTER_FILE"
+            exit 1
+          fi
+
+          echo "Checking branch file: $BRANCH_FILE"
+          if [[ ! -f "$BRANCH_FILE" ]]; then
+            echo "Error: Branch file does not exist at $BRANCH_FILE"
+            exit 1
+          fi
+
+          echo "Both master and branch files exist. Proceeding..."
+          ls -l "$MASTER_FILE"
+          ls -l "$BRANCH_FILE"
 
           # Check if both files exist
           if [[ -f "$MASTER_FILE" && -f "$BRANCH_FILE" ]]; then
