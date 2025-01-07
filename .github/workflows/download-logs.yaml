@@ -147,6 +147,8 @@ jobs:
           # Paths to the master and branch files
           MASTER_FILE=downloaded-artifacts/runner_${{ inputs.runner_id_1 }}/download-logs/master-${BASE_NAME}
           BRANCH_FILE=downloaded-artifacts/runner_${{ inputs.runner_id_2 }}/download-logs/branch-${BASE_NAME}
+          ls $MASTER_FILE;
+          ls $BRANCH_FILE
 
           # Check if both files exist
           if [[ -f "$MASTER_FILE" && -f "$BRANCH_FILE" ]]; then
@@ -164,12 +166,14 @@ jobs:
               xvfb-run --server-args="-screen 0 1024x768x24" vimdiff "$MASTER_FILE" "$BRANCH_FILE" -c ':sleep 2' &
               sleep 3 # Give the GUI enough time to render
               DISPLAY=:99 scrot screenshots/vimdiff-screenshot.png
+              echo "VIM_UPLOAD=true" >> $GITHUB_ENV
           else
               echo "One or both files are missing."
               exit 1
           fi
 
       - name: Upload Vimdiff Outputs
+        if: env.VIM_UPLOAD == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: vimdiff-visualization
