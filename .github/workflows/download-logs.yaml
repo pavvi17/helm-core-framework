@@ -170,10 +170,8 @@ jobs:
           ls -l "$BRANCH_FILE"
           sudo apt-get update
           sudo apt-get install -y scrot xvfb vim x11-utils colordiff
-          echo "Starting VIM DIFF........."
-          colordiff "$MASTER_FILE" "$BRANCH_FILE"
 
-          
+
           # Check if both files exist
           if [[ -f "$MASTER_FILE" && -f "$BRANCH_FILE" ]]; then
               echo "Creating Vimdiff visualization..."
