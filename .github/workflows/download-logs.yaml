@@ -164,6 +164,9 @@ jobs:
             exit 1
           fi
 
+          echo "Starting VIM DIFF........."
+          vimdiff "$MASTER_FILE" "$BRANCH_FILE"
+
           echo "Both master and branch files exist. Proceeding..."
           ls -l "$MASTER_FILE"
           ls -l "$BRANCH_FILE"
