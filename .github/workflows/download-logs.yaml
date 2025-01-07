@@ -101,9 +101,9 @@ jobs:
           ls -R downloaded-artifacts
 
           # Process logs for runner_1
-          if [ -d "downloaded-artifacts/runner_${{ inputs.runner_id_1 }}/download-logs/" ]; then
+          if [ -d "downloaded-artifacts/runner_${{ inputs.runner_id_1 }}/simple-run/" ]; then
             echo "Processing logs for runner_${{ inputs.runner_id_1 }}..."
-            cd "downloaded-artifacts/runner_${{ inputs.runner_id_1 }}/download-logs/"
+            cd "downloaded-artifacts/runner_${{ inputs.runner_id_1 }}/simple-run/"
             for file in ./*.txt; do
               if [[ -f "$file" ]]; then
                 echo "Processing $file"
@@ -121,9 +121,9 @@ jobs:
           fi
 
           # Process logs for runner_2
-          if [ -d "downloaded-artifacts/runner_${{ inputs.runner_id_2 }}/download-logs/" ]; then
+          if [ -d "downloaded-artifacts/runner_${{ inputs.runner_id_2 }}/simple-run/" ]; then
             echo "Processing logs for runner_${{ inputs.runner_id_2 }}..."
-            cd "downloaded-artifacts/runner_${{ inputs.runner_id_2 }}/download-logs/"
+            cd "downloaded-artifacts/runner_${{ inputs.runner_id_2 }}/simple-run/"
             for file in ./*.txt; do
               if [[ -f "$file" ]]; then
                 echo "Processing $file"
@@ -147,8 +147,8 @@ jobs:
           # Define base name
           BASE_NAME="1_Set up job.txt" # Replace with dynamic logic if needed
           # Paths to the master and branch files
-          MASTER_FILE=downloaded-artifacts/runner_${{ inputs.runner_id_1 }}/download-logs/master-${BASE_NAME}
-          BRANCH_FILE=downloaded-artifacts/runner_${{ inputs.runner_id_2 }}/download-logs/branch-${BASE_NAME}
+          MASTER_FILE=downloaded-artifacts/runner_${{ inputs.runner_id_1 }}/simple-run/master-${BASE_NAME}
+          BRANCH_FILE=downloaded-artifacts/runner_${{ inputs.runner_id_2 }}/simple-run/branch-${BASE_NAME}
           echo "Current working directory: $(pwd)"
           echo "Listing current directory contents:"
           ls -R
