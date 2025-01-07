@@ -141,8 +141,8 @@ jobs:
           fi
 
       - name: Generate Vimdiff Visualization
-        # env:
-        #   BASE_NAME: "2_Checkout code.txt" # Replace with your dynamic file name logic
+        env:
+          DISPLAY: 99
         run: |
           # Define base name
           BASE_NAME="1_Set up job.txt" # Replace with dynamic logic if needed
@@ -168,20 +168,21 @@ jobs:
           ls -l "$MASTER_FILE"
           ls -l "$BRANCH_FILE"
           sudo apt-get update
-          sudo apt-get install -y scrot xvfb vim
+          sudo apt-get install -y scrot xvfb vim x11-utils
           # Check if both files exist
           if [[ -f "$MASTER_FILE" && -f "$BRANCH_FILE" ]]; then
               echo "Creating Vimdiff visualization..."
               mkdir -p screenshots
 
-              # Use Xvfb to run Vimdiff in a virtual framebuffer
               # Start Xvfb and set DISPLAY
               export DISPLAY=:99
               Xvfb :99 -screen 0 1024x768x24 &
-              sleep 3 # Wait for Xvfb to initialize
 
-              # Grant access to the X server
-              xhost +local:root
+              # Wait for Xvfb to initialize
+              sleep 3 
+
+              # Grant access to X server (xhost is now installed)
+              xhost +local:root || true
 
               # Use Vimdiff to generate the HTML visualization
               vimdiff "$MASTER_FILE" "$BRANCH_FILE" \
@@ -190,8 +191,6 @@ jobs:
                 -c 'w! vimdiff-output.html' \
                 -c 'qa!'
 
-              echo "Capturing Vimdiff visualization as a screenshot..."
-              # Capture screenshot using scrot
               echo "Capturing Vimdiff visualization as a screenshot..."
               scrot screenshots/vimdiff-screenshot.png
 
