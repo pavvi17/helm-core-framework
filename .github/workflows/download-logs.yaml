@@ -164,14 +164,16 @@ jobs:
             exit 1
           fi
 
-          echo "Starting VIM DIFF........."
-          vimdiff "$MASTER_FILE" "$BRANCH_FILE"
 
           echo "Both master and branch files exist. Proceeding..."
           ls -l "$MASTER_FILE"
           ls -l "$BRANCH_FILE"
           sudo apt-get update
-          sudo apt-get install -y scrot xvfb vim x11-utils
+          sudo apt-get install -y scrot xvfb vim x11-utils colordiff
+          echo "Starting VIM DIFF........."
+          colordiff "$MASTER_FILE" "$BRANCH_FILE"
+
+          
           # Check if both files exist
           if [[ -f "$MASTER_FILE" && -f "$BRANCH_FILE" ]]; then
               echo "Creating Vimdiff visualization..."
