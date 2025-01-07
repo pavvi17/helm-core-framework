@@ -205,6 +205,9 @@ jobs:
               exit 1
           fi
 
+          echo "Starting COLOR DIFF........."
+          colordiff "$MASTER_FILE" "$BRANCH_FILE" > color_diff_output.txt 
+
       - name: Upload Vimdiff Outputs
         if: env.VIM_UPLOAD == 'true'
         uses: actions/upload-artifact@v4
@@ -213,3 +216,4 @@ jobs:
           path: |
             vimdiff-output.html
             screenshots/vimdiff-screenshot.png
+            color_diff_output.txt
