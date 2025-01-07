@@ -64,8 +64,8 @@ jobs:
       - name: Verify Log Files for Comparison
         run: |
           echo "Verifying files for comparison..."
-          MASTER_FILE="logs/runner_${{ inputs.runner_id_1 }}/1_Set up job.txt"
-          BRANCH_FILE="logs/runner_${{ inputs.runner_id_2 }}/1_Set up job.txt"
+          MASTER_FILE="logs/runner_${{ inputs.runner_id_1 }}/*.txt"
+          BRANCH_FILE="logs/runner_${{ inputs.runner_id_2 }}/*.txt"
           echo "Checking existence of: $MASTER_FILE and $BRANCH_FILE"
           if [[ ! -f "$MASTER_FILE" ]]; then
             echo "Error: File $MASTER_FILE does not exist!"
