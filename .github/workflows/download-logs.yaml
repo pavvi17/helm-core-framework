@@ -175,16 +175,28 @@ jobs:
               mkdir -p screenshots
 
               # Use Xvfb to run Vimdiff in a virtual framebuffer
-              xvfb-run --server-args="-screen 0 1024x768x24" vimdiff "$MASTER_FILE" "$BRANCH_FILE" \
+              # Start Xvfb and set DISPLAY
+              export DISPLAY=:99
+              Xvfb :99 -screen 0 1024x768x24 &
+              sleep 3 # Wait for Xvfb to initialize
+
+              # Grant access to the X server
+              xhost +local:root
+
+              # Use Vimdiff to generate the HTML visualization
+              vimdiff "$MASTER_FILE" "$BRANCH_FILE" \
                 -c 'set diffopt+=vertical' \
                 -c 'TOhtml' \
                 -c 'w! vimdiff-output.html' \
                 -c 'qa!'
 
               echo "Capturing Vimdiff visualization as a screenshot..."
-              xvfb-run --server-args="-screen 0 1024x768x24" vimdiff "$MASTER_FILE" "$BRANCH_FILE" -c ':sleep 2' &
-              sleep 3 # Give the GUI enough time to render
-              DISPLAY=:99 scrot screenshots/vimdiff-screenshot.png
+              # Capture screenshot using scrot
+              echo "Capturing Vimdiff visualization as a screenshot..."
+              scrot screenshots/vimdiff-screenshot.png
+
+              echo "Screenshot and HTML visualization generated."
+              ls -l vimdiff-output.html screenshots/vimdiff-screenshot.png
               echo "VIM_UPLOAD=true" >> $GITHUB_ENV
           else
               echo "One or both files are missing."
