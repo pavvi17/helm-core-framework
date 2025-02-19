@@ -12,6 +12,26 @@ jobs:
   fetch-workflow-details:
     runs-on: ubuntu-latest
     steps:
+      - name: Get Workflow Run ID for Given Runner
+        id: get_run_id
+        run: |
+          RUNNER_ID="${{ github.event.inputs.runner_id }}"
+          
+          # Fetch all jobs from recent workflow runs
+          JOBS=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+                      -H "Accept: application/vnd.github.v3+json" \
+                      "https://api.github.com/repos/${{ github.repository }}/actions/runs?status=in_progress")
+
+          # Extract workflow run ID based on Runner ID
+          RUN_ID=$(echo "$JOBS" | jq -r ".workflow_runs[] | select(.id == $RUNNER_ID) | .id")
+
+          if [[ -z "$RUN_ID" || "$RUN_ID" == "null" ]]; then
+            echo "No active workflow found for runner: $RUNNER_ID"
+            exit 1
+          fi
+          
+          echo "RUN_ID=$RUN_ID" >> $GITHUB_ENV
+
       - name: Get Branch Name & Tag ID from Workflow Run
         id: get_branch_tag
         run: |
@@ -23,6 +43,11 @@ jobs:
           # Extract branch name and tag details
           BRANCH_NAME=$(echo "$WORKFLOW_DETAILS" | jq -r '.head_branch')
           TAG_ID=$(echo "$WORKFLOW_DETAILS" | jq -r '.head_sha')
+
+          if [[ "$BRANCH_NAME" == "null" ]]; then
+            echo "Error: Could not fetch branch name. Exiting."
+            exit 1
+          fi
 
           echo "Branch Name: $BRANCH_NAME"
           echo "Tag ID: $TAG_ID"
