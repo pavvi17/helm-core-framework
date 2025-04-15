@@ -1,56 +1,39 @@
-name: Increment Minor Version
+name: Bump Minor Version on Feature Merge
 
 on:
-  push:
+  pull_request:
+    types:
+      - closed
     branches:
-      - master
+      - main
 
 jobs:
-  bump-version:
+  bump-minor:
+    if: github.event.pull_request.merged == true && startsWith(github.event.pull_request.head.ref, 'feature/')
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
         with:
-          fetch-depth: 0
-
-      - name: Get last commit message
-        id: last_commit
-        run: echo "message=$(git log -1 --pretty=format:'%s')" >> "$GITHUB_OUTPUT"
-
-      - name: Get merged branch name
-        id: branch_name
-        run: |
-          echo "branch=$(git log -1 --pretty=format:'%s' | grep -oE 'Merge pull request #[0-9]+ from [^/]+/[^ ]+' | sed -E 's#.* from [^/]+/##')" >> $GITHUB_OUTPUT
-
-      - name: Check if it's a feature branch
-        id: is_feature
-        run: |
-          if [[ "${{ steps.branch_name.outputs.branch }}" == feature/* ]]; then
-            echo "is_feature=true" >> $GITHUB_OUTPUT
-          else
-            echo "is_feature=false" >> $GITHUB_OUTPUT
-          fi
+          fetch-depth: 0  # So we get full history and tags
 
       - name: Get latest tag
         id: get_tag
         run: |
           git fetch --tags
           latest_tag=$(git describe --tags --abbrev=0 || echo "0.0.0")
-          echo "latest=$latest_tag" >> $GITHUB_OUTPUT
+          echo "latest=$latest_tag" >> "$GITHUB_OUTPUT"
 
       - name: Calculate next minor version
-        if: steps.is_feature.outputs.is_feature == 'true'
         id: bump_version
         run: |
           IFS='.' read -r major minor patch <<< "${{ steps.get_tag.outputs.latest }}"
           minor=$((minor + 1))
           new_version="$major.$minor.0"
-          echo "new_version=$new_version" >> $GITHUB_OUTPUT
+          echo "new_version=$new_version" >> "$GITHUB_OUTPUT"
 
       - name: Create and push new tag
-        if: steps.is_feature.outputs.is_feature == 'true'
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
